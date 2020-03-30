@@ -19,7 +19,7 @@ app.signin(authedUser);
 
 fakeChats.map(fc => app.addChat(fc));
 
-let fakeMsgCounter = 1000;
+let fakeMsgCounter = 70;
 
 const interval = setInterval(() => {
 
