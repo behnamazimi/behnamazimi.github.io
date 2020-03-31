@@ -216,14 +216,17 @@ class ChatListItem extends Component {
         this.render();
     }
 
+    // call on mounting
     onMount() {
         this.initListeners();
     }
 
+    // call on un-mounting
     onUnmount() {
         this.removeListeners();
     }
 
+    // call on attributes changed
     attributeChangedCallback(attrName, oldValue, newValue) {
         if (oldValue === newValue)
             return;
@@ -232,6 +235,10 @@ class ChatListItem extends Component {
         this.render();
     }
 
+    /**
+     * reflect the selected attr on HTML tag
+     * @param value
+     */
     set selected(value) {
         if (value) {
             this.setAttribute('selected', '');
@@ -245,6 +252,7 @@ class ChatListItem extends Component {
         return this.hasAttribute('selected');
     }
 
+    // call on attributes changed
     incrementUnreadCount() {
         let count = 0;
         if (this.getAttribute("unreadcount"))
@@ -253,10 +261,18 @@ class ChatListItem extends Component {
         this.setAttribute('unreadcount', count + 1);
     }
 
+    /**
+     * call this when you want to reset the unread messages count
+     */
     markAllAsRead() {
         this.setAttribute('unreadcount', '0');
     }
 
+    /**
+     * reflect the unread attr on HTML tag
+     * unread counter badge only shows on items that have truly unread attr
+     * @param value
+     */
     set unread(value) {
         if (value)
             this.setAttribute('unread', '');
@@ -268,23 +284,53 @@ class ChatListItem extends Component {
         return this.hasAttribute('unread');
     }
 
+    /**
+     * reflect the online attr on HTML tag
+     * @param value
+     */
+    set online(value) {
+        if (value)
+            this.setAttribute('online', '');
+        else
+            this.removeAttribute('online');
+    }
+
+    get online() {
+        return this.hasAttribute('online');
+    }
+
+    /**
+     * Initialize required listeners
+     */
     initListeners() {
         this.on("click", this._onClick)
     }
 
+    /**
+     * remove added listeners
+     */
     removeListeners() {
         this.off("click", this._onClick)
     }
 
+    /**
+     * this method fire when chat-list-item clicked
+     * if the component is not disabled, it emit the
+     * clicked item id to above component (chatList) and
+     * set the selected attr
+     * @param e
+     * @private
+     */
     _onClick(e) {
         e.preventDefault();
         if (this.disabled) {
             return;
         }
 
-        // fire selected event
+        // send selected chat-item id to parent component
         this.emit(APP_EVENTS.CHAT_CLICKED, {id: this.getAttribute("id")});
         this.selected = true;
+        // reset unread counter of this chat
         this.markAllAsRead();
     }
 
@@ -328,4 +374,5 @@ class ChatListItem extends Component {
 
 }
 
+// define chat-list-item tag name
 customElements.define(ChatListItem.tagName, ChatListItem);
