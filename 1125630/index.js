@@ -26,7 +26,6 @@ function requestFullscreenFor(element) {
         } else if (element['msRequestFullscreen']) {
             element['msRequestFullscreen']()
         }
-        element.manualFSElement = element;
         return true;
     } catch (e) {
         console.log(e);
