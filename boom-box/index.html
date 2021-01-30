@@ -6,17 +6,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Potta+One&display=swap" rel="stylesheet">
     <link href="./styles.4a492ce9.css" rel="stylesheet">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+
+    <style>
+        #github-link {
+            position: fixed;
+            right: 1rem;
+            top: 1rem;
+            z-index: 10;
+        }
+
+        #github-link img {
+            width: 3rem;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+        }
+    </style>
+
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-E8LDGWQSFG"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
         gtag('js', new Date());
 
         gtag('config', 'G-E8LDGWQSFG');
     </script>
 </head>
 <body>
+<a href="https://github.com/behnamazimi/boom-box" target="_blank" id="github-link">
+    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="Github Repo">
+</a>
 <div class="cloud x1"></div>
 <div class="cloud x2"></div>
 <div class="cloud x3"></div>
