@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        button {
+            font-size: 18px;
+        }
+
+        pre {
+            background-color: #f0f0f0;
+        }
+
+        details summary {
+            outline: none;
+            padding: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+
+<body style="font-size: 18px">
+    <h1>Memory Leaks</h1>
+    <div>
+        <h3>Referenced Object:</h3>
+        <button onclick="createObject()">Create Neste Object</button>
+        <button onclick="clearObject()">Clear Object</button>
+        <details>
+            <summary>Code</summary>
+            <pre contenteditable="true" lang="javascript" style="padding: 5px;font-size: 16px;">
+let target = {}
+let target2 = {}
+let intervalId = null
+function createObject() {
+    intervalId = setInterval(() => {
+        const elm = document.createElement("div")
+        target = { strangeVal: new Array(100000).join(","), parent: target2, elm }
+        target2 = { strangeVal: new Array(100000).join(","), parent: target, elm }
+    }, 10)
+}
+                </pre>
+
+        </details>
+    </div>
+
+    <div>
+        <h3>Closure:</h3>
+        <button onclick="callClosure()">Call New Closures</button>
+        <button onclick="removeClosures()">Stop</button>
+        <details>
+            <summary>Code</summary>
+
+            <pre contenteditable="true" lang="javascript" style="padding: 5px; font-size: 16px;">
+function parentDoSomething() {
+    let var1 = 'x'
+    let var2 = new Array(10000000).join(var1)
+    
+    return function childResult() {
+        return var2.length > 100
+    }
+}
+        </pre>
+        </details>
+    </div>
+
+
+    <div>
+        <h3>Out of DOM:</h3>
+        <button onclick="removeDomNode()">Remove Below Text</button>
+        <button onclick="logElmVar()">Log Element Variable</button>
+        <p id="long-text" style="overflow: hidden; max-height: 100px;">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Minima incidunt dolores, rerum eos dolore itaque?
+            Voluptate, cumque amet saepe suscipit aliquid assumenda beatae ut, veritatis fuga, odit veniam! Quia,
+            repellat! </p>
+        <details>
+            <summary>Code</summary>
+
+            <pre contenteditable="true" lang="javascript" style="padding: 5px; font-size: 16px;">
+let longTextElm = document.getElementById("long-text")
+
+function removeDomNode() {
+    longTextElm.remove()
+}
+
+            </pre>
+        </details>
+    </div>
+
+    <script src="./object-reference.js"></script>
+    <script src="./clousure.js"></script>
+    <script src="./dom.js"></script>
+</body>
+
+</html>
