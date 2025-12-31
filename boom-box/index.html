@@ -2,50 +2,99 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Boom Box - Simple JS Game </title>
+    <title>Boom Box</title>
     <link href="https://fonts.googleapis.com/css2?family=Potta+One&display=swap" rel="stylesheet">
-    <link href="./styles.92a5d60c.css" rel="stylesheet">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
 
-    <style>
-        #github-link {
-            position: fixed;
-            right: 1rem;
-            top: 1rem;
-            z-index: 10;
-        }
-
-        #github-link img {
-            width: 3rem;
-            border-radius: 50%;
-            border: 1px solid #ddd;
-        }
-    </style>
-
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E8LDGWQSFG"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-
-        gtag('js', new Date());
-
-        gtag('config', 'G-E8LDGWQSFG');
-    </script>
+  <script type="module" crossorigin src="/assets/index-pdjGPcT4.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CwSJ50QW.css">
 </head>
 <body>
-<a href="https://github.com/behnamazimi/boom-box" target="_blank" id="github-link">
-    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="Github Repo">
-</a>
+<div id="controls">
+    <button id="mute-btn" class="control-btn mute-btn" aria-label="Toggle sound effects">
+        <span class="sound-on">🔊</span>
+        <span class="sound-off">🔇</span>
+    </button>
+    <button id="settings-btn" class="control-btn" aria-label="Settings">⚙️</button>
+    <button id="stats-btn" class="control-btn" aria-label="Statistics">📊</button>
+</div>
+
+<div id="settings-modal" class="modal hidden">
+    <div class="modal-content">
+        <h2>Settings</h2>
+        <div class="setting-group">
+            <label>Difficulty</label>
+            <div class="difficulty-buttons">
+                <button class="diff-btn" data-difficulty="easy">🌱 Easy</button>
+                <button class="diff-btn active" data-difficulty="normal">⚡ Normal</button>
+                <button class="diff-btn" data-difficulty="hard">🔥 Hard</button>
+            </div>
+            <p class="diff-description" id="diff-desc">4 colors evenly distributed - balanced gameplay</p>
+        </div>
+        <button id="close-settings" class="close-btn">Start Game</button>
+    </div>
+</div>
+
+<div id="stats-modal" class="modal hidden">
+    <div class="modal-content stats-content">
+        <h2>📊 Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-label">Games Played</span>
+                <span class="stat-value" id="stat-games">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Blocks Destroyed</span>
+                <span class="stat-value" id="stat-blocks">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Biggest Combo</span>
+                <span class="stat-value" id="stat-combo">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Total Combos</span>
+                <span class="stat-value" id="stat-total-combos">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Highest Score</span>
+                <span class="stat-value" id="stat-highscore">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Total Play Time</span>
+                <span class="stat-value" id="stat-playtime">0m</span>
+            </div>
+        </div>
+        <div class="stats-buttons">
+            <button id="reset-stats" class="reset-btn">Reset Stats</button>
+            <button id="close-stats" class="close-btn">Close</button>
+        </div>
+    </div>
+</div>
+
+<dialog id="reset-confirm-dialog">
+    <h3>⚠️ Reset Statistics?</h3>
+    <p>This will permanently delete all your statistics including your best score.</p>
+    <div class="dialog-buttons">
+        <button id="cancel-reset" class="dialog-btn cancel-btn">Cancel</button>
+        <button id="confirm-reset" class="dialog-btn confirm-btn">Reset</button>
+    </div>
+</dialog>
+
 <div class="cloud x1"></div>
 <div class="cloud x2"></div>
 <div class="cloud x3"></div>
 <div id="board"></div>
-<h3 id="score">Score: 0</h3>
+<div id="score-container">
+    <h3 id="score">Score: 0</h3>
+    <h3 id="high-score">Best: 0</h3>
+    <h3 id="difficulty">Level: 1</h3>
+</div>
 <h3 id="msg"></h3>
-<script src="./src.7cad35f1.js"></script>
+
+<footer id="global-footer">
+    <span class="footer-left">🌍 <span id="global-booms">0</span> blocks boomed worldwide</span>
+    <a href="https://x.com/baz7c8" target="_blank" rel="noopener noreferrer" class="footer-right">by @baz7c8</a>
+</footer>
+
 </body>
 </html>
