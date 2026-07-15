@@ -1,0 +1,95 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Lesson 12 — Incident Response Basics</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><body>
+<main>
+
+<p class=kicker>Lesson 0012 · Track: Process &amp; Collaboration (Incident response) · ~14 min</p>
+<h1>The cache bug from Lesson 3, now as a live incident</h1>
+<p class=subtitle>Same bug. This lesson is about what happens in the hour after someone notices it.</p>
+
+<div class="callout callout-forward">
+  <p class=callout-label>Where this connects</p>
+  <p>Lesson 3 named the risk: if <code>ProfileHeader</code>'s cache key ever omitted a needed argument, one visitor's cached output could leak to another. Assume it happened. This lesson is the response, not the fix.</p>
+</div>
+
+<h2>Severity first, fix second</h2>
+<p>Before touching code, name how serious this is — a <strong>severity level</strong> (often Sev1 highest to Sev4 lowest) that sets urgency and who needs to know. A UI glitch is low severity. A cache bug that shows one user's follow-relationships or private data to another is high severity regardless of how few lines of code caused it — severity tracks impact, not the size of the diff. Alongside severity, name the <strong>blast radius</strong>: how many users, requests, or how much data were actually affected. Lesson 3 already used this term; here's the retrieval check — if you had to guess without re-reading, would "blast radius" have come to mind unprompted?</p>
+
+<h2>Triage → mitigate → resolve</h2>
+<p>The order matters: first <strong>triage</strong> (confirm it's real, assess severity and blast radius), then <strong>mitigate</strong> (stop the bleeding — here, likely purging the bad cache entries or disabling caching for that component, not necessarily shipping the real fix yet), then <strong>resolve</strong> (the actual code fix, reviewed and deployed normally). Mitigation is deliberately allowed to be a blunt instrument — turning off caching entirely is an acceptable mitigation even though it costs the scalability Lesson 4 cared about, because right now correctness outranks it.</p>
+
+<h2>The write-up: blameless, not vague</h2>
+<p>Once resolved, the postmortem records what happened without assigning individual fault — <strong>blameless</strong> means it assumes everyone involved acted reasonably with the information they had, and focuses on contributing causes a process or system could catch next time. <a href=https://sre.google/sre-book/postmortem-culture/ target=_blank rel=noopener>Postmortem Culture — Google SRE Book →</a>, primary source, same one Lesson 3 pointed to. A useful postmortem still names the specific mechanism precisely (the cache key omitted <code>viewerId</code>) — blameless is about people, not about vagueness.</p>
+
+<h2>Check your vocabulary</h2>
+
+<div class=quiz data-quiz data-explain="Right — blast radius is how many users, requests, or how much data were actually affected.">
+  <p class=quiz-q>How many users, requests, or how much data an incident actually affected. What's this called? (You saw this term in Lesson 3.)</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Blast radius</button>
+    <button class=quiz-opt data-correct=false>Root cause</button>
+    <button class=quiz-opt data-correct=false>Error budget</button>
+    <button class=quiz-opt data-correct=false>Mean time to repair</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — a blameless postmortem assumes good intent and focuses on contributing causes, not individual fault.">
+  <p class=quiz-q>A postmortem that assumes good intent and focuses on contributing causes rather than individual fault. What's it called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Root cause analysis</button>
+    <button class=quiz-opt data-correct=true>Blameless postmortem</button>
+    <button class=quiz-opt data-correct=false>Incident triage</button>
+    <button class=quiz-opt data-correct=false>Severity assessment</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — a severity level sets urgency and who needs to know, independent of how large the underlying code change is.">
+  <p class=quiz-q>A classification (often Sev1 to Sev4) used to communicate how serious an incident is and how urgently it needs response. What's this called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Severity level</button>
+    <button class=quiz-opt data-correct=false>Blast radius</button>
+    <button class=quiz-opt data-correct=false>Error budget</button>
+    <button class=quiz-opt data-correct=false>Service level</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<h2>Your turn: write the postmortem</h2>
+<div class="callout callout-exercise">
+  <p class=callout-label>Exercise</p>
+  <p>The incident: <code>ProfileHeader</code>'s <code>"use cache"</code> key was missing an argument, and for six hours, some visitors briefly saw a cached fragment meant for a different user. In the scratchpad, write a short blameless postmortem with these sections:</p>
+  <ol>
+    <li><strong>What happened</strong> (one sentence, factual, no blame).</li>
+    <li><strong>Impact / blast radius</strong> (be specific about what "affected" means here).</li>
+    <li><strong>Root cause</strong> (the precise mechanism — not "human error").</li>
+    <li><strong>Action items</strong> (at least one that would catch this class of bug automatically next time, not just "be more careful").</li>
+  </ol>
+  <textarea class=scratchpad data-scratchpad=0012-cache-incident-postmortem placeholder="What happened:
+
+Impact / blast radius:
+
+Root cause:
+
+Action items:"></textarea>
+  <p class=scratchpad-hint>Saved locally in your browser as you type.</p>
+</div>
+
+<div class="callout callout-checkpoint">
+  <p class=callout-label>Check your answer</p>
+  <p>Check your action items specifically — "be more careful with cache keys" doesn't survive a blameless review. You want a mechanism (a test, a lint rule, a checklist item) that doesn't depend on someone remembering.</p>
+  <details class=reveal>
+    <summary>Reveal a model postmortem</summary>
+    <p><strong>What happened:</strong> <code>ProfileHeader</code>'s cache key omitted <code>viewerId</code>, so a cached fragment computed for one viewer was served to others. <strong>Impact / blast radius:</strong> every viewer of a cached profile page during the roughly six-hour window before detection — the exact count depends on traffic, but the failure mode (one user's data reaching another) is serious enough to treat as high severity regardless of how few requests were involved. <strong>Root cause:</strong> the <code>"use cache"</code> function read <code>viewerId</code> from a cookie but didn't include it as an argument, so it wasn't part of the cache key. <strong>Action items:</strong> add a test asserting that any cached function's argument list includes every runtime value it reads (cookies, headers); add this as a standing code-review checklist item for new <code>"use cache"</code> usage.</p>
+  </details>
+</div>
+
+<div class=lesson-nav>
+  <span><a href=/design-thinking-lessons/lessons/0011-testing-strategy.html>← Lesson 11 — Testing strategy</a></span>
+  <span><a href=/design-thinking-lessons/lessons/0013-technical-documentation-design-docs.html>Lesson 13 — Design docs →</a></span>
+</div>
+
+</main>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.7e890af1.js></script>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.8eb40559.js></script>
+
+

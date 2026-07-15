@@ -1,0 +1,153 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Lesson 5 — Data Fetching Architecture</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><body>
+<main>
+
+<p class=kicker>Lesson 0005 · Track: Frontend Architecture (added topic) · ~15 min</p>
+<h1>Why I added this one</h1>
+<p class=subtitle>Component boundaries, state, rendering, and performance all meet at one practical question: where does the data actually come from, and when?</p>
+
+<div class="callout callout-forward">
+  <p class=callout-label>Why this earned a slot</p>
+  <p>Lesson 3 gave every component the right to fetch its own data — Server Components can fetch anywhere in the tree, not just at the page's top. That freedom has a cost: if you don't sequence fetches deliberately, the same boundary that made your code cleaner can silently make your page slower. This is the connective-tissue topic between "the boundaries are right" (Lessons 1–3) and "it's still slow" (Lesson 4).</p>
+</div>
+
+<h2>The symptom: a waterfall</h2>
+<p>Nested components each fetching their own data looks clean — until the fetches depend on nothing but still run one after another:</p>
+
+<pre><code>// Naive: sequential even though nothing requires it
+export default async function Page({ params }: Props) {
+  const { username } = await params;
+  const artist = await getArtist(username);   // waits...
+  const albums = await getAlbums(username);    // ...then waits again
+  return &lt;div&gt;{artist.name}&lt;/div&gt;;
+}</code></pre>
+<p><code>getAlbums</code> doesn't need anything from <code>artist</code> — it only needs <code>username</code>, which was already available. But because it's written after an <code>await</code>, it doesn't start until <code>getArtist</code> finishes. Two independent round-trips just became one twice as long. This exact case is documented directly by Next.js: <a href=https://nextjs.org/docs/app/getting-started/fetching-data target=_blank rel=noopener>Fetching Data — Next.js docs →</a>, the primary source for this lesson, verified against the current v16 docs rather than an older tutorial.</p>
+
+<h2>The fix: parallel when independent, Suspense when genuinely dependent</h2>
+<pre><code>async function getArtist(username: string) {
+  const res = await fetch(`https://api.example.com/artist/${username}`);
+  return res.json();
+}
+async function getAlbums(username: string) {
+  const res = await fetch(`https://api.example.com/artist/${username}/albums`);
+  return res.json();
+}
+
+export default async function Page({ params }: Props) {
+  const { username } = await params;
+  // Both calls start immediately — neither needs the other's result.
+  const artistData = getArtist(username);
+  const albumsData = getAlbums(username);
+  const [artist, albums] = await Promise.all([artistData, albumsData]);
+  return (
+    &lt;&gt;
+      &lt;h1&gt;{artist.name}&lt;/h1&gt;
+      &lt;Albums list={albums} /&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+<p>Compare this to a request that's <em>actually</em> dependent — fetching playlists that need the artist's <code>id</code>, which only exists after <code>getArtist</code> resolves:</p>
+<pre><code>export default async function Page({ params }: Props) {
+  const { username } = await params;
+  const artist = await getArtist(username); // genuinely can't be parallel
+  return (
+    &lt;&gt;
+      &lt;h1&gt;{artist.name}&lt;/h1&gt;
+      &lt;Suspense fallback={&lt;div&gt;Loading...&lt;/div&gt;}&gt;
+        &lt;Playlists artistID={artist.id} /&gt;
+      &lt;/Suspense&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+<p>The sequencing here is unavoidable, but <code>&lt;Suspense&gt;</code> — Lesson 3's tool — keeps the artist's name visible immediately instead of blocking the whole page on the playlists request. Sequential-but-necessary and sequential-by-accident look identical in a stack trace; the difference is entirely in whether a later request's <em>arguments</em> depend on an earlier one's <em>result</em>.</p>
+
+<h2>The other half: not fetching the same thing twice</h2>
+<p>Lesson 2 named "duplicated state" as a bug. The fetching equivalent isn't a bug in the same way — Next.js's extended <code>fetch</code> automatically <strong>memoizes</strong> identical requests within one render pass, and <code>React.cache</code> extends the same dedup to non-<code>fetch</code> sources like a database client:</p>
+<pre><code>import { cache } from "react";
+export const getUser = cache(async (id: string) =&gt; {
+  const res = await fetch(`https://api.example.com/user/${id}`);
+  return res.json();
+});
+// Called from two different components in the same request → one real call.</code></pre>
+<p>This is why Lesson 3's "components can fetch their own data" model doesn't cause duplicate network calls the way duplicated <code>useState</code> caused duplicated facts — the memoization layer handles it, as long as the request shape (function + arguments) is actually identical.</p>
+
+<h2>Check your vocabulary</h2>
+
+<div class=quiz data-quiz data-explain="Right — a data waterfall is sequential fetching where nothing actually requires the sequence.">
+  <p class=quiz-q>Nested components each await their own fetch; the requests don't depend on each other but still run one after another. What's this called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Data waterfall</button>
+    <button class=quiz-opt data-correct=false>Race condition</button>
+    <button class=quiz-opt data-correct=false>Cache miss</button>
+    <button class=quiz-opt data-correct=false>Prop drilling</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — starting both requests before awaiting either, then awaiting together with Promise.all, is parallel fetching.">
+  <p class=quiz-q>getArtist(username) and getAlbums(username) are both called before either is awaited, then awaited together with Promise.all. What's this called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Lazy fetching</button>
+    <button class=quiz-opt data-correct=true>Parallel fetching</button>
+    <button class=quiz-opt data-correct=false>Cached fetching</button>
+    <button class=quiz-opt data-correct=false>Deferred fetching</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — identical requests within one render pass are automatically deduped; this is request memoization.">
+  <p class=quiz-q>Two components in the same request both call getUser(id) with the same id, but only one real network/database call happens. What's this called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Partial prerendering</button>
+    <button class=quiz-opt data-correct=false>State lifting</button>
+    <button class=quiz-opt data-correct=true>Request memoization</button>
+    <button class=quiz-opt data-correct=false>Cache invalidation</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<h2>Secondary track: waterfalls hide from unit tests</h2>
+<p>A unit test that mocks <code>getArtist</code> and <code>getAlbums</code> as already-resolved promises can't tell you whether they ran sequentially or in parallel in production — the mock resolves instantly either way. This is another point for Lesson 2's <a href=https://kentcdodds.com/blog/the-testing-trophy-and-testing-classifications target=_blank rel=noopener>Testing Trophy</a> bias toward integration tests: only something that exercises real (or realistically delayed) async timing, or a request-count assertion, actually catches a waterfall regression.</p>
+
+<h2>Your turn: build something small</h2>
+<pre><code>export default async function ProductPage({ params }: Props) {
+  const { id } = await params;
+  const product = await getProduct(id);
+  const reviews = await getReviews(product.id);
+  const related = await getRelatedProducts(product.category);
+  return &lt;/* ... */&gt;;
+}</code></pre>
+<div class="callout callout-exercise">
+  <p class=callout-label>Exercise</p>
+  <p>In the scratchpad:</p>
+  <ol>
+    <li>Which one of these three calls has to run before the other two even start, and which two — despite each reading a field off <code>product</code> — are independent of each other and can run in parallel?</li>
+    <li>Rewrite the sequencing so the independent pair runs in parallel.</li>
+    <li>Name the term for what was wrong in the original version.</li>
+  </ol>
+  <textarea class=scratchpad data-scratchpad=0005-productpage-fetch-fix placeholder="1) Dependent vs independent...
+
+2) Rewrite...
+
+3) The term is..."></textarea>
+  <p class=scratchpad-hint>Saved locally in your browser as you type.</p>
+</div>
+
+<div class="callout callout-checkpoint">
+  <p class=callout-label>Check your answer</p>
+  <p>Make sure you've sorted dependent from independent, rewritten the sequencing, and named the term before expanding this.</p>
+  <details class=reveal>
+    <summary>Reveal a potential answer</summary>
+    <p><strong>Dependent vs. independent:</strong> <code>getProduct(id)</code> has to run first — nothing else has an <code>id</code> to work with yet. <code>getReviews(product.id)</code> and <code>getRelatedProducts(product.category)</code> both need a field off <code>product</code>, but not off each other — so once <code>product</code> resolves, they can run in parallel. <strong>The rewrite:</strong> <code>await getProduct(id)</code>, then call both <code>getReviews</code> and <code>getRelatedProducts</code> before awaiting either, and resolve them together with <code>Promise.all</code>. <strong>The term:</strong> the original version was a data waterfall — two independent calls forced into sequence for no reason.</p>
+  </details>
+</div>
+
+<div class=lesson-nav>
+  <span><a href=/design-thinking-lessons/lessons/0004-performance-scalability-tradeoffs.html>← Lesson 4 — Performance &amp; scalability</a></span>
+  <span><a href=/design-thinking-lessons/lessons/0006-coupling-cohesion-general-principle.html>Lesson 6 — Broadening: coupling &amp; cohesion →</a></span>
+</div>
+
+</main>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.7e890af1.js></script>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.8eb40559.js></script>
+
+

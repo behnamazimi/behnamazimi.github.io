@@ -1,0 +1,29 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Cheat Sheet — Incident Response</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><style>main{max-width:640px}.term{margin-bottom:1.1rem}.term dt{font-weight:600;font-family:var(--font-mono);font-size:.95rem}.term dd{margin:.2rem 0 0}</style><body>
+<main>
+
+<p class=kicker>Reference · From Lesson 0012</p>
+<h1>Incident Response Cheat Sheet</h1>
+
+<h2>Terms</h2>
+<dl>
+  <div class=term><dt>Severity level<dd>Classification (often Sev1–Sev4) of how serious an incident is and how urgently it needs response — tracks impact, not diff size.</div>
+  <div class=term><dt>Blast radius<dd>How many users, requests, or how much data were actually affected.</div>
+  <div class=term><dt>Blameless postmortem<dd>A write-up assuming good intent, focused on contributing causes and mechanisms, not individual fault.</div>
+</dl>
+
+<h2>Order of operations</h2>
+<ol>
+  <li><strong>Triage</strong> — confirm it's real, assess severity and blast radius.</li>
+  <li><strong>Mitigate</strong> — stop the bleeding with whatever blunt tool works (even at a cost, like disabling a cache).</li>
+  <li><strong>Resolve</strong> — the real, reviewed fix.</li>
+  <li><strong>Postmortem</strong> — what happened, impact, root cause, action items that don't depend on someone "being more careful."</li>
+</ol>
+
+<h2>Primary source</h2>
+<p><a href=https://sre.google/sre-book/postmortem-culture/ target=_blank rel=noopener>Postmortem Culture — Google SRE Book</a></p>
+
+<p><a href=/design-thinking-lessons/lessons/0012-incident-response-basics.html>← Back to Lesson 12</a></p>
+
+</main>
+
+

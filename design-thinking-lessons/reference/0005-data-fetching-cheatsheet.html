@@ -1,0 +1,33 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Cheat Sheet — Data Fetching Architecture</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><style>main{max-width:640px}.term{margin-bottom:1.1rem}.term dt{font-weight:600;font-family:var(--font-mono);font-size:.95rem}.term dd{margin:.2rem 0 0}</style><body>
+<main>
+
+<p class=kicker>Reference · From Lesson 0005</p>
+<h1>Data Fetching Cheat Sheet</h1>
+
+<h2>Terms</h2>
+<dl>
+  <div class=term>
+    <dt>Data waterfall</dt>
+    <dd>Sequential fetches where a later request's start doesn't actually depend on an earlier one's result — just written after an <code>await</code>.</dd>
+  </div>
+  <div class=term>
+    <dt>Parallel fetching</dt>
+    <dd>Starting independent requests before awaiting any of them (call first, <code>await Promise.all([...])</code> together).</dd>
+  </div>
+  <div class=term>
+    <dt>Request memoization</dt>
+    <dd>Identical <code>fetch</code> calls within one render pass are automatically deduped by Next.js. <code>React.cache</code> extends this to non-<code>fetch</code> data sources.</dd>
+  </div>
+</dl>
+
+<h2>The one question that separates waterfall from necessary sequence</h2>
+<p>Does the later call's <em>arguments</em> depend on the earlier call's <em>result</em>? If no — parallelize with <code>Promise.all</code>. If yes — it's genuinely sequential; wrap it in <code>&lt;Suspense&gt;</code> so it doesn't block everything else.</p>
+
+<h2>Primary source</h2>
+<p><a href=https://nextjs.org/docs/app/getting-started/fetching-data target=_blank rel=noopener>Fetching Data — Next.js docs</a></p>
+
+<p><a href=/design-thinking-lessons/lessons/0005-data-fetching-architecture.html>← Back to Lesson 5</a></p>
+
+</main>
+
+

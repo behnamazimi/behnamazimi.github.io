@@ -1,0 +1,34 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Cheat Sheet — Testing Strategy</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><style>main{max-width:640px}table{border-collapse:collapse;width:100%;margin:1rem 0 1.4rem;font-size:.9rem}th,td{text-align:left;border-bottom:1px solid var(--color-border);padding:.4rem .6rem}</style><body>
+<main>
+
+<p class=kicker>Reference · From Lesson 0011</p>
+<h1>Testing Strategy Cheat Sheet</h1>
+
+<h2>The Testing Trophy</h2>
+<table>
+  <tr><th>Layer<th>Catches<th>Cost</tr>
+  <tr><td>Static analysis<td>Type errors, typos, shape mismatches<td>Lowest</tr>
+  <tr><td>Unit<td>One function/component's own logic, in isolation<td>Low</tr>
+  <tr><td>Integration<td>Bugs that only appear when units combine (duplicated state, waterfalls)<td>Medium — biggest confidence-per-cost</tr>
+  <tr><td>E2E<td>Real-browser, close-to-production issues<td>Highest</tr>
+</table>
+
+<h2>Rule of thumb</h2>
+<p>"The more your tests resemble the way your software is used, the more confidence they can give you." — Kent C. Dodds. Mocking away the exact thing you're worried about (timing, shared state) makes a test pass without proving anything.</p>
+
+<h2>Architecture → testability, in one line each</h2>
+<ul>
+  <li>Cohesive, deep components (Lesson 1/6) → cheap, meaningful unit tests.</li>
+  <li>Shared/lifted state (Lesson 2/7) → needs an integration test of the common ancestor.</li>
+  <li>Async Server Components (Lesson 3) → can't <code>render()</code> in isolation; favor integration/E2E.</li>
+  <li>Data waterfalls (Lesson 5) → invisible to instantly-resolved mocks; need real/realistic async timing.</li>
+</ul>
+
+<h2>Primary source</h2>
+<p><a href=https://kentcdodds.com/blog/the-testing-trophy-and-testing-classifications target=_blank rel=noopener>The Testing Trophy — Kent C. Dodds</a></p>
+
+<p><a href=/design-thinking-lessons/lessons/0011-testing-strategy.html>← Back to Lesson 11</a></p>
+
+</main>
+
+

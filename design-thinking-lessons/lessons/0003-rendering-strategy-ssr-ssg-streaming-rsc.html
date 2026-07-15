@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Lesson 3 — Rendering Strategy: SSR, SSG, Streaming, RSC</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><body>
+<main>
+
+<p class=kicker>Lesson 0003 · Track: Frontend Architecture (Rendering strategy) · ~18 min</p>
+<h1>When does this actually run?</h1>
+<p class=subtitle>Component boundaries decided what ships to the client. Rendering strategy decides when each piece's work happens.</p>
+
+<div class="callout callout-forward">
+  <p class=callout-label>Carried over from Lessons 1 &amp; 2</p>
+  <p><code>Card</code> has no state or interactivity — Lesson 1's boundary decision. <code>isFollowing</code> is lifted client state that's actually a fact about a server-side relationship — Lesson 2's open question. Both land here: the boundary decides which pieces can stay Server Components; the state's real origin (server data) decides which piece must run at request time.</p>
+</div>
+
+<h2>First, a vocabulary correction</h2>
+
+<p>A lot of 2026-era tutorials still describe SSR, SSG, and ISR as three separate modes you pick per page. That's stale. In the current Next.js App Router model, the choice isn't per-page — it's per-component, driven by whether a component opts into caching, and the result is stitched together at request time. This isn't a small nuance: using "I set this page to SSG" as if it were still a single per-page toggle is exactly the kind of correct-idea-wrong-vocabulary mismatch worth catching in yourself. <a href=https://nextjs.org/docs/app/getting-started/caching target=_blank rel=noopener>Verify against the current caching docs →</a> before trusting any blog post's terminology here, including this one in a year.</p>
+
+<h2>The default: Server Components</h2>
+
+<p>Every component in the App Router is a <strong>Server Component</strong> unless it opts out. Server Components run only on the server — they can query a database directly, never ship their own code to the browser, and their output is just HTML (plus a serialized description React uses for updates). A component becomes a <strong>Client Component</strong> only when it adds <code>"use client"</code> — which it needs the moment it uses state, effects, or event handlers. <a href=https://react.dev/reference/rsc/server-components target=_blank rel=noopener>Server Components — react.dev →</a> This is exactly the line Lesson 1 drew: <code>Card</code> needed none of those, so it stays a Server Component; <code>FollowButton</code> needs an <code>onClick</code>, so it must be a Client Component.</p>
+
+<h2>The case study: one profile page, two very different needs</h2>
+
+<p><code>ProfileHeader</code> (name, avatar, bio) rarely changes and isn't specific to who's viewing it — a great candidate to cache. Whether the viewer is following this profile is specific to the viewer and must be current — it can't be baked in ahead of time. Here's both, current syntax, verified against the Next.js docs:</p>
+
+<pre><code>// app/profile/[id]/page.tsx
+import { Suspense } from "react";
+import { cookies } from "next/headers";
+import { cacheLife } from "next/cache";
+
+export default async function ProfilePage({
+  params,
+}: { params: Promise&lt;{ id: string }&gt; }) {
+  const { id } = await params;
+  return (
+    &lt;&gt;
+      &lt;ProfileHeader userId={id} /&gt;
+      &lt;Suspense fallback={&lt;FollowButtonSkeleton /&gt;}&gt;
+        &lt;FollowButtonForViewer profileId={id} /&gt;
+      &lt;/Suspense&gt;
+    &lt;/&gt;
+  );
+}
+
+// Cached: built once, reused across viewers, refreshed hourly.
+async function ProfileHeader({ userId }: { userId: string }) {
+  "use cache";
+  cacheLife("hours");
+  const user = await getUser(userId);
+  return (
+    &lt;Card theme="light"&gt;
+      &lt;Card.Avatar src={user.avatarUrl} alt={user.name} /&gt;
+      &lt;Card.Body&gt;&lt;h3&gt;{user.name}&lt;/h3&gt;&lt;p&gt;{user.bio}&lt;/p&gt;&lt;/Card.Body&gt;
+    &lt;/Card&gt;
+  );
+}
+
+// Never cached: reads the viewer's own cookie, must be current for THIS request.
+async function FollowButtonForViewer({ profileId }: { profileId: string }) {
+  const viewerId = (await cookies()).get("uid")?.value;
+  const isFollowing = await getIsFollowing(viewerId, profileId);
+  return &lt;FollowButton profileId={profileId} initialIsFollowing={isFollowing} /&gt;;
+}</code></pre>
+
+<p><code>ProfileHeader</code> is doing the job the old mental model called "SSG" (or "ISR" once it refreshes) — computed ahead of need, reused. <code>FollowButtonForViewer</code> is doing the job the old mental model called "SSR" — computed fresh, per request, because it depends on <em>who's asking</em>. The difference now is that both live on the <em>same page</em>, as a property of each component, not a setting on the route.</p>
+
+<h2>Streaming and Partial Prerendering</h2>
+
+<p>Because <code>FollowButtonForViewer</code> is wrapped in <code>&lt;Suspense&gt;</code>, the browser doesn't wait for it: the cached <code>ProfileHeader</code> plus the Suspense <code>fallback</code> go out immediately as a static shell, and the real follow-button content <strong>streams</strong> in once it resolves. A page assembled this way — a cached static shell with dynamic Suspense-wrapped holes — is doing <strong>Partial Prerendering (PPR)</strong>, the current default rendering shape in Next.js. <a href=https://vercel.com/blog/how-to-choose-the-best-rendering-strategy-for-your-app target=_blank rel=noopener>How to Choose the Best Rendering Strategy — Vercel Blog →</a> is the primary source for this lesson; it's written by the framework's own team and lays out the tradeoff table this lesson only has room to summarize.</p>
+
+<h2>Check your vocabulary</h2>
+
+<div class=quiz data-quiz data-explain="Right — every component is a Server Component by default in the App Router; it opts out with &quot;use client&quot;.">
+  <p class=quiz-q>A component renders only on the server and ships no JavaScript of its own to the browser unless it opts in. What's this default component type called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Server Component</button>
+    <button class=quiz-opt data-correct=false>Cache Component</button>
+    <button class=quiz-opt data-correct=false>Static Component</button>
+    <button class=quiz-opt data-correct=false>Client Component</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — sending part of the page immediately and sending the rest once it resolves is streaming.">
+  <p class=quiz-q>FollowButtonForViewer's Suspense fallback goes out immediately; the real content is sent once the promise resolves. What's this technique called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Hydration</button>
+    <button class=quiz-opt data-correct=false>Memoization</button>
+    <button class=quiz-opt data-correct=true>Streaming</button>
+    <button class=quiz-opt data-correct=false>Revalidation</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — a cached static shell plus dynamic Suspense holes on one route is Partial Prerendering.">
+  <p class=quiz-q>One route serves a cached shell (ProfileHeader) plus a dynamic Suspense hole (the follow button) at the same time. What's this rendering shape called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Static generation</button>
+    <button class=quiz-opt data-correct=false>Client rendering</button>
+    <button class=quiz-opt data-correct=false>Server rendering</button>
+    <button class=quiz-opt data-correct=true>Partial prerendering</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<h2>Secondary track: when caching becomes an incident</h2>
+<p>Notice what <code>ProfileHeader</code>'s cache key implicitly depends on: <code>userId</code>. If a refactor accidentally cached a component keyed on the <em>wrong</em> argument — say, caching <code>FollowButtonForViewer</code>'s output without <code>viewerId</code> in the key — one visitor's "is following" state could be served to a different visitor. This is a real, common class of production incident: a caching boundary mismatch that leaks or misattributes user-specific data. Two vocabulary items worth having ready before it happens to you: <strong>blast radius</strong> (how many users/requests were affected) and <strong>blameless postmortem</strong> (the writeup that focuses on the contributing cause, not who wrote the bad cache key). <a href=https://sre.google/sre-book/postmortem-culture/ target=_blank rel=noopener>Postmortem Culture — Google SRE Book →</a></p>
+
+<h2>Your turn: build something small</h2>
+
+<pre><code>// app/products/[id]/page.tsx
+export default async function ProductPage({ params }: Props) {
+  "use cache";
+  const { id } = await params;
+  const product = await getProduct(id);
+  const viewerId = (await cookies()).get("uid")?.value; // ⚠️
+  const price = await getPriceForViewer(product.id, viewerId); // member discount
+  return (
+    &lt;&gt;
+      &lt;ProductInfo product={product} /&gt;
+      &lt;PricePanel price={price} /&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+<div class="callout callout-exercise">
+  <p class=callout-label>Exercise</p>
+  <p>The whole page is <code>"use cache"</code>'d, but the price depends on the viewer's cookie (member discount). In the scratchpad:</p>
+  <ol>
+    <li>Name precisely what's wrong — what could one viewer end up seeing that belongs to another?</li>
+    <li>Sketch the fix: which piece stays cached, which piece needs to move into a <code>Suspense</code> boundary and read the cookie itself, and why.</li>
+    <li>Write a 3-line ADR (Context / Decision / Consequences) for splitting the page this way.</li>
+  </ol>
+  <textarea class=scratchpad data-scratchpad=0003-product-page-fix placeholder="1) What's wrong...
+
+2) The fix...
+
+3) ADR..."></textarea>
+  <p class=scratchpad-hint>Saved locally in your browser as you type.</p>
+</div>
+
+<div class="callout callout-checkpoint">
+  <p class=callout-label>Check your answer</p>
+  <p>Make sure you've named the leak, sketched the split, and written the three ADR lines before expanding this.</p>
+  <details class=reveal>
+    <summary>Reveal a potential answer</summary>
+    <p><strong>What's wrong:</strong> because the whole page is <code>"use cache"</code>'d, the first viewer's member-discount price gets baked into the cached output and served to every later viewer of that product page — a price (and effectively a discount eligibility) leak between users. <strong>The fix:</strong> keep <code>ProductInfo</code> cached (it's the same for everyone); move <code>PricePanel</code> into its own component that reads the viewer's cookie directly and sits inside a <code>Suspense</code> boundary, so it's computed fresh per request instead of baked into the cache. <strong>The ADR:</strong> Context — price depends on a per-viewer cookie but the whole page is cached; Decision — split into a cached shell plus a request-time <code>Suspense</code>-wrapped price component; Consequences — the price is always correct per viewer, at the cost of one extra request-time render for that piece.</p>
+  </details>
+</div>
+
+<div class=lesson-nav>
+  <span><a href=/design-thinking-lessons/lessons/0002-state-local-global-derived.html>← Lesson 2 — State</a></span>
+  <span><a href=/design-thinking-lessons/lessons/0004-performance-scalability-tradeoffs.html>Lesson 4 — Performance &amp; scalability →</a></span>
+</div>
+
+</main>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.7e890af1.js></script>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.8eb40559.js></script>
+
+

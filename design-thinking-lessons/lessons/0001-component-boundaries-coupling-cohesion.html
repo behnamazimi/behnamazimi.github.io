@@ -1,0 +1,204 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Lesson 1 — Component Boundaries, Coupling &amp; Cohesion</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><body>
+<main>
+
+<p class=kicker>Lesson 0001 · Track: Frontend Architecture (Component/API design) · ~15 min</p>
+<h1>Where does this component end?</h1>
+<p class=subtitle>Why component boundaries are the decision every later architecture choice inherits.</p>
+
+<p>Every downstream decision in this course — where state lives, whether a piece renders on the server, how a page scales — is constrained by a decision you make first, often without noticing you're making it: <strong>where you draw the edge of a component</strong>. Get the edge wrong and every later decision fights it. This lesson gives you the vocabulary to see the edge, and to defend where you drew it.</p>
+
+<h2>The symptom: a component that grew a permission system</h2>
+
+<p>Here's a component that looks completely ordinary — the kind you've written a hundred times under deadline:</p>
+
+<pre><code>// components/UserProfileCard.tsx
+type UserProfileCardProps = {
+  name: string;
+  avatarUrl: string;
+  bio: string;
+  isAdmin: boolean;
+  isCurrentUser: boolean;
+  showEditButton: boolean;
+  showDeleteButton: boolean;
+  compact: boolean;
+  onEdit?: () =&gt; void;
+  onDelete?: () =&gt; void;
+  theme: "light" | "dark";
+};
+
+export function UserProfileCard({
+  name, avatarUrl, bio, isAdmin, isCurrentUser,
+  showEditButton, showDeleteButton, compact, onEdit, onDelete, theme,
+}: UserProfileCardProps) {
+  return (
+    &lt;div className={`card ${theme} ${compact ? "card--compact" : ""}`}&gt;
+      &lt;img src={avatarUrl} alt={name} /&gt;
+      &lt;h3&gt;{name}&lt;/h3&gt;
+      {!compact &amp;&amp; &lt;p&gt;{bio}&lt;/p&gt;}
+      {isAdmin &amp;&amp; &lt;span className="badge"&gt;Admin&lt;/span&gt;}
+      {(showEditButton || isCurrentUser) &amp;&amp; &lt;button onClick={onEdit}&gt;Edit&lt;/button&gt;}
+      {showDeleteButton &amp;&amp; isAdmin &amp;&amp; &lt;button onClick={onDelete}&gt;Delete&lt;/button&gt;}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+<p>Nothing here is a bug. It works. But look at what the prop list is actually doing: <code>name</code>, <code>avatarUrl</code>, <code>bio</code>, and <code>theme</code> answer "what does this look like?" — while <code>isAdmin</code>, <code>isCurrentUser</code>, <code>showEditButton</code>, and <code>showDeleteButton</code> answer an entirely different question: "who is allowed to do what?" One component is doing layout <em>and</em> permission logic. That's two unrelated jobs stitched into one interface.</p>
+
+<h2>Naming the problem: cohesion and coupling</h2>
+
+<p><strong>Cohesion</strong> asks: how related are the things a single component is responsible for? A component with high cohesion does one job; every prop and every branch inside it serves that one job. <code>UserProfileCard</code> has <strong>low cohesion</strong> — rendering a card shell and deciding who may edit or delete a user are unrelated concerns, forced into the same box.</p>
+
+<p><strong>Coupling</strong> asks: how much does one piece of code have to know about another piece's internals to work with it? Every call site of <code>UserProfileCard</code> now has to know the exact boolean combination that produces the right button state — <code>showEditButton || isCurrentUser</code> is <em>permission logic that leaked out of the component and into every caller</em>, and it will drift out of sync the moment someone adds a caller who forgets the combination. That's <strong>tight coupling</strong>: change the permission rule, and you're now editing (or breaking) every place that constructs these props.</p>
+
+<blockquote>Cohesion and coupling aren't a React-specific idea — they come from structured design theory in the 1970s (Constantine &amp; Yourdon). We're using them here on a component; later in this course we'll come back to the general version and use the same two words on backend and database code. <a href=https://dev.to/cloudx/organizing-your-react-code-cohesion-and-coupling-579 target=_blank rel=noopener>Cohesion and coupling in React →</a></blockquote>
+
+<h2>The fix: composition instead of configuration</h2>
+
+<p>The permission logic belongs where the permission <em>knowledge</em> already lives: the caller. So don't ask the card to accept flags describing every possible caller — ask it to accept the <em>pieces</em> a caller wants to arrange. This is the <strong>compound component</strong> pattern: one parent component plus a set of named sub-components that share an implicit contract, composed by whoever calls them.</p>
+
+<pre><code>// components/Card.tsx
+export function Card({ compact, theme, children }: {
+  compact?: boolean;
+  theme: "light" | "dark";
+  children: React.ReactNode;
+}) {
+  return (
+    &lt;div className={`card ${theme} ${compact ? "card--compact" : ""}`}&gt;
+      {children}
+    &lt;/div&gt;
+  );
+}
+
+Card.Avatar = function CardAvatar({ src, alt }: { src: string; alt: string }) {
+  return &lt;img src={src} alt={alt} /&gt;;
+};
+
+Card.Body = function CardBody({ children }: { children: React.ReactNode }) {
+  return &lt;div className="card-body"&gt;{children}&lt;/div&gt;;
+};
+
+Card.Actions = function CardActions({ children }: { children: React.ReactNode }) {
+  return &lt;div className="card-actions"&gt;{children}&lt;/div&gt;;
+};</code></pre>
+
+<p>And at the call site — the place that already knows the permission rule:</p>
+
+<pre><code>&lt;Card theme="dark"&gt;
+  &lt;Card.Avatar src={user.avatarUrl} alt={user.name} /&gt;
+  &lt;Card.Body&gt;
+    &lt;h3&gt;{user.name}&lt;/h3&gt;
+    &lt;p&gt;{user.bio}&lt;/p&gt;
+  &lt;/Card.Body&gt;
+  {(isAdmin || isCurrentUser) &amp;&amp; (
+    &lt;Card.Actions&gt;
+      &lt;EditButton onClick={handleEdit} /&gt;
+      {isAdmin &amp;&amp; &lt;DeleteButton onClick={handleDelete} /&gt;}
+    &lt;/Card.Actions&gt;
+  )}
+&lt;/Card&gt;</code></pre>
+
+<p><code>Card</code> is now highly cohesive — its only job is arranging a card shell — and loosely coupled to its callers, since it exposes slots (<code>children</code>, named sub-components) rather than a growing list of booleans that encode caller-specific logic. This is <strong>composition over configuration</strong>: instead of adding a flag for every future case, you give the caller pieces to assemble. <a href=https://frontendmastery.com/posts/advanced-react-component-composition-guide/ target=_blank rel=noopener>Read the full pattern at Frontend Mastery →</a> — this is the recommended primary source for this lesson; it goes deeper into slot-based APIs than we have room for here.</p>
+
+<div class="callout callout-forward">
+  <p class=callout-label>How this constrains what's next</p>
+  <p><code>Card</code> now holds no state and no interactivity of its own — that boundary decision is what will let Lesson 3 ask "does <code>Card</code> even need to run on the client?" (it won't; only <code>EditButton</code>/<code>DeleteButton</code> need an event handler). And the question of <em>where <code>isAdmin</code> and <code>isCurrentUser</code> should live</em> — local to the page, lifted, or derived from a session object — is exactly Lesson 2's subject. The boundary you draw today is the input to both of those decisions, not a separate concern.</p>
+</div>
+
+<h2>Check your vocabulary</h2>
+
+<div class=quiz data-quiz data-explain="Right — cohesion measures how related a module's own responsibilities are to each other, regardless of who calls it.">
+  <p class=quiz-q>The original component bundled rendering layout, deciding who can edit, and deciding who can delete into one prop list. What term names a component doing multiple unrelated jobs?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>High coupling</button>
+    <button class=quiz-opt data-correct=true>Low cohesion</button>
+    <button class=quiz-opt data-correct=false>Deep nesting</button>
+    <button class=quiz-opt data-correct=false>Prop drilling</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — loose coupling means components share a minimal, stable interface instead of each depending on the other's internal logic.">
+  <p class=quiz-q>After the refactor, a change to "who can delete" no longer requires editing Card. What term names components that communicate through minimal, well-defined props rather than encoding each other's internal logic?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Tight coupling</button>
+    <button class=quiz-opt data-correct=false>High cohesion</button>
+    <button class=quiz-opt data-correct=true>Loose coupling</button>
+    <button class=quiz-opt data-correct=false>Deep nesting</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — a parent plus named sub-components (Card.Avatar, Card.Body, Card.Actions) that the caller assembles is the compound component pattern.">
+  <p class=quiz-q>The caller now assembles Card, Card.Avatar, Card.Body, and Card.Actions instead of toggling booleans inside one component. What pattern name applies to this API shape?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Render props</button>
+    <button class=quiz-opt data-correct=true>Compound components</button>
+    <button class=quiz-opt data-correct=false>Custom hooks</button>
+    <button class=quiz-opt data-correct=false>Context providers</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<h2>Secondary track: writing the decision down</h2>
+
+<p>You just made an architecture decision — composition over a growing boolean-flag API — for a reason a teammate reviewing your PR won't see just by reading the diff. This is what an <strong>ADR</strong> (Architecture Decision Record) is for: a short note capturing the <em>context</em>, the <em>decision</em>, and the <em>consequences</em>, so the "why" survives the code review and the next person who's tempted to add one more boolean flag can read why that path was already rejected. <a href=https://adr.github.io/ target=_blank rel=noopener>adr.github.io →</a> is the canonical reference and template source — we'll come back to fuller ADRs later; for now you're just practicing the shape.</p>
+
+<div class=quiz data-quiz data-explain="Right — Context, Decision, and Consequences is the standard ADR shape (Nygard template).">
+  <p class=quiz-q>A short document recording the context, the decision made, and its consequences — used to justify a design choice like this one — is usually called a(n) ___.</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Code review</button>
+    <button class=quiz-opt data-correct=false>Post mortem</button>
+    <button class=quiz-opt data-correct=true>Decision record</button>
+    <button class=quiz-opt data-correct=false>Design sketch</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<h2>Your turn: build something small</h2>
+
+<p>Here's a component with the same disease, dressed differently. Don't just read it — decide what's wrong and sketch the fix.</p>
+
+<pre><code>// components/NotificationItem.tsx
+type NotificationItemProps = {
+  message: string;
+  type: "info" | "warning" | "error";
+  isUnread: boolean;
+  compact: boolean;
+  showDismiss: boolean;
+  showMarkRead: boolean;
+  onDismiss?: () =&gt; void;
+  onMarkRead?: () =&gt; void;
+};</code></pre>
+
+<div class="callout callout-exercise">
+  <p class=callout-label>Exercise</p>
+  <p>In the scratchpad below:</p>
+  <ol>
+    <li>Name the cohesion and/or coupling problem in <code>NotificationItem</code> — be specific about <em>which</em> props belong to which job.</li>
+    <li>Sketch a composition-based refactor (a rough <code>&lt;Notification&gt;</code> + sub-components is fine — this doesn't need to compile).</li>
+  </ol>
+  <textarea class=scratchpad data-scratchpad=0001-notification-refactor placeholder="1) The problem is...
+
+2) My refactor..."></textarea>
+  <p class=scratchpad-hint>Saved locally in your browser as you type.</p>
+</div>
+
+<div class="callout callout-checkpoint">
+  <p class=callout-label>Check your answer</p>
+  <p>Make sure you've named which props belong to which job, sketched the refactor, and written the three ADR lines before expanding this.</p>
+  <details class=reveal>
+    <summary>Reveal a potential answer</summary>
+    <p><strong>The problem:</strong> <code>type</code>, <code>isUnread</code>, and <code>compact</code> answer "what does this look like?"; <code>showDismiss</code> and <code>showMarkRead</code> answer "what can the caller do here?" — two unrelated jobs in one prop list (low cohesion), and every caller has to know the right flag combination for its context (tight coupling). <strong>The refactor:</strong> a <code>Notification</code> shell that only handles layout, plus a slot (e.g. <code>Notification.Actions</code>) where the caller places whichever buttons apply — the same compound-component move as <code>Card</code>. <strong>The ADR:</strong> Context — the flag list grows with every new action; Decision — move action buttons into a caller-supplied slot; Consequences — callers assemble their own actions, but the component stops changing every time an action rule changes.</p>
+  </details>
+</div>
+
+<div class=lesson-nav>
+  <span><a href=/design-thinking-lessons/index.html>Course home</a></span>
+  <span><a href=/design-thinking-lessons/lessons/0002-state-local-global-derived.html>Lesson 2 — State management strategy →</a></span>
+</div>
+
+</main>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.7e890af1.js></script>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.8eb40559.js></script>
+
+

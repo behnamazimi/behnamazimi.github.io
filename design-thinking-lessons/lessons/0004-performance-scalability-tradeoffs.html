@@ -1,0 +1,144 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Lesson 4 — Performance &amp; Scalability Tradeoffs</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><body>
+<main>
+
+<p class=kicker>Lesson 0004 · Track: Frontend Architecture (Performance &amp; scalability) · ~16 min</p>
+<h1>What does this cost, and who pays?</h1>
+<p class=subtitle>Three lessons of boundary decisions land here as a bill — measured in bytes, milliseconds, and server load.</p>
+
+<div class="callout callout-forward">
+  <p class=callout-label>Carried over from Lessons 1–3</p>
+  <p>Every <code>"use client"</code> boundary from Lesson 1 (only <code>FollowButton</code>, not <code>Card</code>) and every cache decision from Lesson 3 (<code>ProfileHeader</code> cached, follow-state not) already set most of this lesson's outcome before you read a single performance metric. This lesson gives you the vocabulary to see the bill, not a new set of decisions to make from scratch.</p>
+</div>
+
+<h2>Two different questions, often confused</h2>
+<p><strong>Performance</strong>: how fast is this for one user, right now? <strong>Scalability</strong>: what happens to cost and latency as load grows — more users, more data, more traffic? A page can be fast for you in dev and still collapse at 10,000 concurrent users if every request does uncached work. Lesson 3's caching decision is exactly what buys scalability: a cached <code>ProfileHeader</code> costs roughly the same whether one person or one million people request it; an uncached per-request computation scales roughly linearly with traffic.</p>
+
+<h2>The bill for a Client Component: bundle size and hydration</h2>
+<p>Every <code>"use client"</code> component adds its code — and the code of everything it imports — to the JavaScript the browser must download, parse, and execute before the page is interactive. That total is <strong>bundle size</strong>. Once downloaded, React has to walk the server-rendered HTML and attach event handlers and state to it — that process is <strong>hydration</strong>, and its cost scales with how much of the tree is client-side, not with how much is visible on screen. <a href=https://pagepro.co/blog/nextjs-performance-optimization-in-9-steps/ target=_blank rel=noopener>Next.js Performance Optimization — Pagepro →</a></p>
+
+<p>This is precisely why Lesson 1's boundary mattered beyond coupling. Compare:</p>
+
+<pre><code>// Costly: the whole card ships to the client for one button's sake
+"use client";
+export function Card({ children }: { children: React.ReactNode }) {
+  return &lt;div className="card"&gt;{children}&lt;/div&gt;;
+}
+// Avatar, Body, and every future addition now hydrate — whether or not
+// they ever need to.
+
+// Actual (Lesson 1's boundary): only the interactive leaf opts in
+export function Card({ children }: { children: React.ReactNode }) {
+  return &lt;div className="card"&gt;{children}&lt;/div&gt;; // Server Component
+}
+// FollowButton.tsx
+"use client";
+export function FollowButton(props: Props) { /* ... */ }</code></pre>
+
+<p>Marking <code>Card</code> as a client component doesn't make it work any differently today — it works either way. The cost shows up later, as every future avatar, badge, or layout tweak added to <code>Card</code> silently grows the client bundle, because the boundary was drawn one level too high.</p>
+
+<h2>Naming what you're actually measuring: Core Web Vitals</h2>
+<p>"Fast" isn't one number. Google's Core Web Vitals name three specific axes: <strong>LCP</strong> (Largest Contentful Paint — how long until the main content is visible), <strong>INP</strong> (Interaction to Next Paint — how long until a click or keypress gets a visible response), and <strong>CLS</strong> (Cumulative Layout Shift — how much content jumps around as it loads). <a href=https://web.dev/articles/vitals target=_blank rel=noopener>Web Vitals — web.dev →</a>, the primary source for this lesson. A bloated client bundle mainly hurts INP (more JS to parse and run before the thread is free to respond); an unbounded uncached database query mainly hurts scalability under load, which shows up as LCP degrading only once traffic rises — a failure mode a single-user dev-server test will never reveal.</p>
+
+<h2>Check your vocabulary</h2>
+
+<div class=quiz data-quiz data-explain="Right — bundle size is the total JS a browser must download and execute before the page is interactive.">
+  <p class=quiz-q>The total JavaScript a browser must download and execute before a page becomes interactive. What's this called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Bundle size</button>
+    <button class=quiz-opt data-correct=false>Cache latency</button>
+    <button class=quiz-opt data-correct=false>Render blocking</button>
+    <button class=quiz-opt data-correct=false>Server load</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — hydration is React attaching event handlers and state to already-rendered HTML.">
+  <p class=quiz-q>React attaching event handlers and state to server-rendered HTML already sitting in the DOM. What's this process called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Streaming</button>
+    <button class=quiz-opt data-correct=true>Hydration</button>
+    <button class=quiz-opt data-correct=false>Memoization</button>
+    <button class=quiz-opt data-correct=false>Revalidation</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — INP (Interaction to Next Paint) measures responsiveness to input.">
+  <p class=quiz-q>The Core Web Vital that measures how quickly a page responds to a click or keypress. Which one?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>LCP</button>
+    <button class=quiz-opt data-correct=true>INP</button>
+    <button class=quiz-opt data-correct=false>CLS</button>
+    <button class=quiz-opt data-correct=false>TTFB</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — this is a scalability failure: fine for one user, falls over as load grows, because nothing about the work shrinks per-request as traffic rises.">
+  <p class=quiz-q>A page loads in 200ms for one visitor but falls over at 10,000 concurrent visitors because every request hits the database uncached. Performance or scalability — which one failed?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Poor cohesion</button>
+    <button class=quiz-opt data-correct=true>Poor scalability</button>
+    <button class=quiz-opt data-correct=false>Poor caching</button>
+    <button class=quiz-opt data-correct=false>Poor performance</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<h2>Secondary track: this is a code review smell</h2>
+<p>Google's code review standard asks reviewers to weigh whether a change's added complexity is justified — and a new <code>"use client"</code> boundary is exactly that kind of complexity: it's easy to add, and its cost (bundle size, hydration) doesn't show up in the diff itself. <a href=https://google.github.io/eng-practices/review/reviewer/standard.html target=_blank rel=noopener>The Standard of Code Review — Google eng-practices →</a> A reviewer who's fluent in this lesson's vocabulary asks "does this whole subtree need to hydrate, or just the one interactive leaf?" — a question that's hard to ask without the words <em>boundary</em>, <em>bundle size</em>, and <em>hydration</em> on hand.</p>
+
+<h2>Your turn: build something small</h2>
+
+<pre><code>// components/ArticleList.tsx
+"use client"; // added so ReadMoreToggle (nested 4 levels down) can useState
+export function ArticleList({ articles }: { articles: Article[] }) {
+  return (
+    &lt;ul&gt;
+      {articles.map((a) =&gt; (
+        &lt;li key={a.id}&gt;
+          &lt;h3&gt;{a.title}&lt;/h3&gt;
+          &lt;ArticleSummary text={a.summary} /&gt;
+        &lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+// ArticleSummary renders text and a &lt;ReadMoreToggle&gt; that useStates
+// an expanded/collapsed boolean. Everything else here is static text.</code></pre>
+
+<div class="callout callout-exercise">
+  <p class=callout-label>Exercise</p>
+  <p>In the scratchpad:</p>
+  <ol>
+    <li>Name what's wrong with putting <code>"use client"</code> on <code>ArticleList</code> for <code>ReadMoreToggle</code>'s sake.</li>
+    <li>Sketch the fix — where exactly should the client boundary move?</li>
+    <li>Which Core Web Vital does this fix mainly help, and why?</li>
+  </ol>
+  <textarea class=scratchpad data-scratchpad=0004-articlelist-fix placeholder="1) What's wrong...
+
+2) The fix...
+
+3) Which vital, and why..."></textarea>
+  <p class=scratchpad-hint>Saved locally in your browser as you type.</p>
+</div>
+
+<div class="callout callout-checkpoint">
+  <p class=callout-label>Check your answer</p>
+  <p>Make sure you've named the problem, located the fix, and picked a specific Core Web Vital before expanding this.</p>
+  <details class=reveal>
+    <summary>Reveal a potential answer</summary>
+    <p><strong>What's wrong:</strong> <code>"use client"</code> on <code>ArticleList</code> pulls the entire list — every title, every summary — into the client bundle and hydration path, just so one deeply nested <code>ReadMoreToggle</code> can hold a boolean. <strong>The fix:</strong> move <code>"use client"</code> down to <code>ReadMoreToggle</code> itself; <code>ArticleList</code> and <code>ArticleSummary</code> stay Server Components and ship no JS of their own. <strong>The vital:</strong> mainly INP — less JavaScript has to parse and run before the page responds to input — with a secondary win on bundle size generally.</p>
+  </details>
+</div>
+
+<div class=lesson-nav>
+  <span><a href=/design-thinking-lessons/lessons/0003-rendering-strategy-ssr-ssg-streaming-rsc.html>← Lesson 3 — Rendering strategy</a></span>
+  <span><a href=/design-thinking-lessons/lessons/0005-data-fetching-architecture.html>Lesson 5 — Data fetching architecture →</a></span>
+</div>
+
+</main>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.7e890af1.js></script>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.8eb40559.js></script>
+
+

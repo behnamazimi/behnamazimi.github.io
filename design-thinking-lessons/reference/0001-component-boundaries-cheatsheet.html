@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Cheat Sheet — Component Boundaries, Coupling &amp; Cohesion</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><style>main{max-width:640px}.term{margin-bottom:1.1rem}.term dt{font-weight:600;font-family:var(--font-mono);font-size:.95rem}.term dd{margin:.2rem 0 0}.avoid{color:var(--color-muted);font-size:.85rem}table{border-collapse:collapse;width:100%;margin:1rem 0 1.4rem;font-size:.9rem}th,td{text-align:left;border-bottom:1px solid var(--color-border);padding:.4rem .6rem}</style><body>
+<main>
+
+<p class=kicker>Reference · From Lesson 0001</p>
+<h1>Component Boundaries Cheat Sheet</h1>
+
+<h2>Terms</h2>
+<dl>
+  <div class=term>
+    <dt>Cohesion</dt>
+    <dd>How related a component's own responsibilities are to each other. High cohesion = one job. Low cohesion = unrelated jobs sharing one interface.</dd>
+    <p class=avoid>Avoid as synonyms: "clean", "well-organized" — too vague to reason with.</p>
+  </div>
+  <div class=term>
+    <dt>Coupling</dt>
+    <dd>How much one piece of code must know about another's internals to use it correctly. Tight coupling = callers must replicate internal logic (e.g. a boolean combination). Loose coupling = callers depend only on a small, stable interface.</dd>
+    <p class=avoid>Avoid: "dependent" alone — say tightly or loosely coupled, and to what.</p>
+  </div>
+  <div class=term>
+    <dt>Composition over configuration</dt>
+    <dd>Give the caller pieces to assemble (children, named sub-components) instead of a growing list of flags that encode every caller's use case.</dd>
+  </div>
+  <div class=term>
+    <dt>Compound component</dt>
+    <dd>A parent component plus named sub-components (<code>Card.Avatar</code>, <code>Card.Body</code>, <code>Card.Actions</code>) that share an implicit contract and are assembled by the caller.</dd>
+  </div>
+</dl>
+
+<h2>Diagnostic: is this a boundary problem?</h2>
+<table>
+  <tr><th>Signal<th>Usually means</tr>
+  <tr><td>Prop count keeps growing across PRs<td>Low cohesion — component is absorbing new jobs</tr>
+  <tr><td>Boolean props control unrelated behavior (<code>showX</code>, <code>isY</code>)<td>Configuration is standing in for composition</tr>
+  <tr><td>Prop names describe <em>who</em> (<code>isAdmin</code>) rather than <em>what to render</em><td>Caller-specific logic leaked into the component</tr>
+  <tr><td>Every caller needs the same boolean combination to get correct behavior<td>Tight coupling — logic duplicated across call sites</tr>
+</table>
+
+<h2>Before / after (condensed)</h2>
+<pre><code>// Before: configuration via flags — low cohesion, tight coupling
+&lt;UserProfileCard isAdmin isCurrentUser showEditButton showDeleteButton /&gt;
+
+// After: composition via slots — high cohesion, loose coupling
+&lt;Card theme="dark"&gt;
+  &lt;Card.Avatar src={user.avatarUrl} alt={user.name} /&gt;
+  &lt;Card.Body&gt;...&lt;/Card.Body&gt;
+  {(isAdmin || isCurrentUser) &amp;&amp; &lt;Card.Actions&gt;...&lt;/Card.Actions&gt;}
+&lt;/Card&gt;</code></pre>
+
+<h2>Primary source</h2>
+<p><a href=https://frontendmastery.com/posts/advanced-react-component-composition-guide/ target=_blank rel=noopener>Advanced React Component Composition — Frontend Mastery</a></p>
+
+<p><a href=/design-thinking-lessons/lessons/0001-component-boundaries-coupling-cohesion.html>← Back to Lesson 1</a></p>
+
+</main>
+
+

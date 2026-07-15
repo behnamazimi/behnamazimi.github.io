@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Cheat Sheet — Tradeoff Analysis</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><style>main{max-width:640px}.term{margin-bottom:1.1rem}.term dt{font-weight:600;font-family:var(--font-mono);font-size:.95rem}.term dd{margin:.2rem 0 0}</style><body>
+<main>
+
+<p class=kicker>Reference · From Lesson 0008 · Generalizes reference/0003</p>
+<h1>Tradeoff Analysis Cheat Sheet</h1>
+
+<h2>Terms</h2>
+<dl>
+  <div class=term>
+    <dt>Consistency</dt>
+    <dd>Every read gets the most recent write, or an explicit error — never silently stale data.</dd>
+  </div>
+  <div class=term>
+    <dt>Availability</dt>
+    <dd>Every request gets a non-error response, without guaranteeing it's the latest write.</dd>
+  </div>
+  <div class=term>
+    <dt>Tradeoff analysis</dt>
+    <dd>Explicitly naming the specific axes in tension and stating which one is deliberately sacrificed, and why — the opposite of "it depends."</dd>
+  </div>
+</dl>
+
+<h2>Template for a one-line tradeoff statement</h2>
+<p><em>"We chose ___ over ___ because ___."</em> If you can't fill this in for a decision, you haven't finished the analysis yet — you've only picked a side.</p>
+
+<h2>Vocabulary map: frontend ↔ general</h2>
+<table style="border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem">
+  <tr><th style="text-align:left;border-bottom:1px solid var(--color-border);padding:.4rem">Lesson 3 (Next.js)<th style="text-align:left;border-bottom:1px solid var(--color-border);padding:.4rem">Lesson 8 (general)</tr>
+  <tr><td style="border-bottom:1px solid var(--color-border);padding:.4rem"><code>use cache</code> component<td style="border-bottom:1px solid var(--color-border);padding:.4rem">Chose availability/speed over consistency</tr>
+  <tr><td style=padding:.4rem>Request-time Suspense component<td style=padding:.4rem>Chose consistency over raw speed</tr>
+</table>
+
+<h2>Primary source</h2>
+<p><a href=https://www.bmc.com/blogs/cap-theorem/ target=_blank rel=noopener>CAP Theorem Explained — BMC</a></p>
+
+<p><a href=/design-thinking-lessons/lessons/0008-tradeoff-analysis-general-principle.html>← Back to Lesson 8</a></p>
+
+</main>
+
+

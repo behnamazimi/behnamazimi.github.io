@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Cheat Sheet — State as Information Architecture</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><style>main{max-width:640px}.term{margin-bottom:1.1rem}.term dt{font-weight:600;font-family:var(--font-mono);font-size:.95rem}.term dd{margin:.2rem 0 0}table{border-collapse:collapse;width:100%;margin:1rem 0 1.4rem;font-size:.9rem}th,td{text-align:left;border-bottom:1px solid var(--color-border);padding:.4rem .6rem}</style><body>
+<main>
+
+<p class=kicker>Reference · From Lesson 0007 · Generalizes reference/0002</p>
+<h1>Information Architecture Cheat Sheet</h1>
+
+<h2>Terms</h2>
+<dl>
+  <div class=term>
+    <dt>Normalization</dt>
+    <dd>Structuring data so each fact lives in exactly one place, referenced elsewhere by key rather than copied.</dd>
+  </div>
+  <div class=term>
+    <dt>Denormalization</dt>
+    <dd>Deliberately storing a derived or duplicated value for read performance, accepting a staleness window as the cost.</dd>
+  </div>
+  <div class=term>
+    <dt>Staleness</dt>
+    <dd>The gap between when source data changes and when a cached/denormalized copy catches up.</dd>
+  </div>
+</dl>
+
+<h2>Vocabulary map: frontend ↔ general</h2>
+<table>
+  <tr><th>Lesson 2 (React)<th>Lesson 7 (general)</tr>
+  <tr><td>Duplicated state<td>Unnormalized data (accidental)</tr>
+  <tr><td>Lifting state up<td>Referencing via foreign key instead of copying</tr>
+  <tr><td>Derived state<td>A <code>VIEW</code> — computed fresh, never stale, costs more per read</tr>
+  <tr><td>(no direct equivalent)<td>Denormalization — deliberate duplication, accepted staleness, for speed</tr>
+</table>
+
+<h2>The judgment call this lesson tests</h2>
+<p>Not everything that looks like duplication is duplication. If two values represent <em>different facts that currently happen to be equal</em> (like an order line's price-at-purchase vs. today's live price), storing both is correct — they will diverge on purpose over time, and that divergence is the point.</p>
+
+<h2>Primary sources</h2>
+<p><a href=https://www.ibm.com/think/topics/database-normalization target=_blank rel=noopener>Database Normalization — IBM</a> · <a href=https://materialize.com/blog/why-use-a-materialized-view/ target=_blank rel=noopener>Materialized Views — Materialize</a></p>
+
+<p><a href=/design-thinking-lessons/lessons/0007-state-information-architecture-general-principle.html>← Back to Lesson 7</a></p>
+
+</main>
+
+

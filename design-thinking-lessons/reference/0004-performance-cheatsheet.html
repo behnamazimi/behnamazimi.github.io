@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Cheat Sheet — Performance &amp; Scalability</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><style>main{max-width:640px}.term{margin-bottom:1.1rem}.term dt{font-weight:600;font-family:var(--font-mono);font-size:.95rem}.term dd{margin:.2rem 0 0}table{border-collapse:collapse;width:100%;margin:1rem 0 1.4rem;font-size:.9rem}th,td{text-align:left;border-bottom:1px solid var(--color-border);padding:.4rem .6rem}</style><body>
+<main>
+
+<p class=kicker>Reference · From Lesson 0004</p>
+<h1>Performance &amp; Scalability Cheat Sheet</h1>
+
+<h2>Terms</h2>
+<dl>
+  <div class=term>
+    <dt>Performance</dt>
+    <dd>How fast this is for one user, right now.</dd>
+  </div>
+  <div class=term>
+    <dt>Scalability</dt>
+    <dd>What happens to cost and latency as load grows. A page can be fast for one user in dev and still fail this axis under production traffic.</dd>
+  </div>
+  <div class=term>
+    <dt>Bundle size</dt>
+    <dd>Total JavaScript a browser must download and execute before the page is interactive. Grows with every <code>"use client"</code> boundary and its imports.</dd>
+  </div>
+  <div class=term>
+    <dt>Hydration</dt>
+    <dd>React attaching event handlers and state to server-rendered HTML already in the DOM. Cost scales with client-side tree size, not visible screen area.</dd>
+  </div>
+</dl>
+
+<h2>Core Web Vitals</h2>
+<table>
+  <tr><th>Metric<th>Measures<th>Good threshold</tr>
+  <tr><td>LCP<td>Loading — time to largest visible content<td>≤ 2.5s</tr>
+  <tr><td>INP<td>Interactivity — response to click/keypress<td>≤ 200ms</tr>
+  <tr><td>CLS<td>Visual stability — how much content shifts<td>≤ 0.1</tr>
+</table>
+
+<h2>Primary source</h2>
+<p><a href=https://web.dev/articles/vitals target=_blank rel=noopener>Web Vitals — web.dev</a></p>
+
+<p><a href=/design-thinking-lessons/lessons/0004-performance-scalability-tradeoffs.html>← Back to Lesson 4</a></p>
+
+</main>
+
+

@@ -1,0 +1,38 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Cheat Sheet — Deep Modules &amp; Information Hiding</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><style>main{max-width:640px}.term{margin-bottom:1.1rem}.term dt{font-weight:600;font-family:var(--font-mono);font-size:.95rem}.term dd{margin:.2rem 0 0}</style><body>
+<main>
+
+<p class=kicker>Reference · From Lesson 0006 · Generalizes reference/0001</p>
+<h1>Deep Modules Cheat Sheet</h1>
+
+<h2>Terms</h2>
+<dl>
+  <div class=term>
+    <dt>Deep module</dt>
+    <dd>Simple interface, hides substantial implementation complexity. High functionality-to-interface-complexity ratio.</dd>
+  </div>
+  <div class=term>
+    <dt>Shallow module</dt>
+    <dd>Interface complexity is close to the complexity of what it actually does. Little hidden value for the interface cost.</dd>
+  </div>
+  <div class=term>
+    <dt>Information hiding</dt>
+    <dd>Callers depend on a module's stated promises, never its internals. The mechanism that makes depth possible.</dd>
+  </div>
+</dl>
+
+<h2>Vocabulary map: frontend ↔ general</h2>
+<table style="border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem">
+  <tr><th style="text-align:left;border-bottom:1px solid var(--color-border);padding:.4rem">Lesson 1 (React)<th style="text-align:left;border-bottom:1px solid var(--color-border);padding:.4rem">Lesson 6 (general)</tr>
+  <tr><td style="border-bottom:1px solid var(--color-border);padding:.4rem">Low cohesion<td style="border-bottom:1px solid var(--color-border);padding:.4rem">Shallow module (roughly)</tr>
+  <tr><td style="border-bottom:1px solid var(--color-border);padding:.4rem">Tight coupling<td style="border-bottom:1px solid var(--color-border);padding:.4rem">Missing information hiding</tr>
+  <tr><td style=padding:.4rem>Composition over configuration<td style=padding:.4rem>Designing for depth</tr>
+</table>
+
+<h2>Primary source</h2>
+<p><a href=https://web.stanford.edu/~ouster/cgi-bin/aposd.php target=_blank rel=noopener>A Philosophy of Software Design — John Ousterhout</a></p>
+
+<p><a href=/design-thinking-lessons/lessons/0006-coupling-cohesion-general-principle.html>← Back to Lesson 6</a> · <a href=/design-thinking-lessons/reference/0001-component-boundaries-cheatsheet.html>See reference/0001 (the frontend version)</a></p>
+
+</main>
+
+

@@ -1,0 +1,32 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Cheat Sheet — Code Review Practices</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><style>main{max-width:640px}.term{margin-bottom:1.1rem}.term dt{font-weight:600;font-family:var(--font-mono);font-size:.95rem}.term dd{margin:.2rem 0 0}</style><body>
+<main>
+
+<p class=kicker>Reference · From Lesson 0010</p>
+<h1>Code Review Cheat Sheet</h1>
+
+<h2>The purpose</h2>
+<p>Improve overall code health over time. Not perfection — approve once a change definitely improves it.</p>
+
+<h2>What to check, in order</h2>
+<dl>
+  <div class=term><dt>Functionality<dd>Does it do what it's meant to, and is that good for the people using it?</div>
+  <div class=term><dt>Complexity<dd>Could this be simpler? Essential to the problem (Lesson 9), or accidental?</div>
+  <div class=term><dt>Tests<dd>Correct, well-designed, and pitched at the right Testing Trophy layer (Lesson 11).</div>
+  <div class=term><dt>Naming<dd>Do names say what things are?</div>
+</dl>
+
+<h2>How to say it</h2>
+<ul>
+  <li>Comment on the code, never the person.</li>
+  <li>Prefix optional polish with <code>Nit:</code>.</li>
+  <li>Unresolved after a few rounds → escalate (call, then tech lead/maintainer), don't loop forever in comments.</li>
+</ul>
+
+<h2>Primary source</h2>
+<p><a href=https://google.github.io/eng-practices/review/reviewer/standard.html target=_blank rel=noopener>The Standard of Code Review — Google eng-practices</a></p>
+
+<p><a href=/design-thinking-lessons/lessons/0010-code-review-practices.html>← Back to Lesson 10</a></p>
+
+</main>
+
+

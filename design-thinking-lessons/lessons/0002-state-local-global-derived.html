@@ -1,0 +1,142 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Lesson 2 — State: Local, Global, Derived</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><body>
+<main>
+
+<p class=kicker>Lesson 0002 · Track: Frontend Architecture (State management) · ~15 min</p>
+<h1>Where does this state live?</h1>
+<p class=subtitle>The boundary you drew in Lesson 1 already answered half of this question.</p>
+
+<div class="callout callout-forward">
+  <p class=callout-label>Carried over from Lesson 1</p>
+  <p><a href=/design-thinking-lessons/lessons/0001-component-boundaries-coupling-cohesion.html>Lesson 1</a> made <code>Card</code> hold no state at all — it just arranges slots. That wasn't only a coupling fix. It also means every state question about a card ("is this the current user?", "is this admin?", "is the user following this profile?") now belongs to whoever calls <code>Card</code>, not to <code>Card</code> itself. Component boundaries and state placement are the same decision viewed from two angles.</p>
+</div>
+
+<h2>The symptom: two booleans that disagree</h2>
+
+<p>Say a profile page shows a <code>FollowButton</code> in two places — the header, and a "suggested profiles" row in the sidebar, both for the same user:</p>
+
+<pre><code>// components/FollowButton.tsx
+"use client";
+export function FollowButton({ initialIsFollowing }: { initialIsFollowing: boolean }) {
+  const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
+  return (
+    &lt;button onClick={() =&gt; setIsFollowing(!isFollowing)}&gt;
+      {isFollowing ? "Following" : "Follow"}
+    &lt;/button&gt;
+  );
+}</code></pre>
+
+<p>Click "Follow" in the header, and the sidebar instance still says "Follow." Both are true, both are wrong. Each <code>FollowButton</code> holds its own copy of a fact that should have exactly one answer.</p>
+
+<h2>Naming the problem: duplicated state</h2>
+
+<p>React's own docs name this directly: <strong>avoid duplication in state</strong> — when the same fact is tracked in more than one place, the copies will eventually disagree, because nothing forces them to update together. <a href=https://react.dev/learn/choosing-the-state-structure target=_blank rel=noopener>Choosing the State Structure — react.dev →</a> The fix isn't a better <code>useState</code> call — it's deciding <em>where the one true copy of "is this user followed?" should live</em>, then having every consumer read from it instead of keeping its own.</p>
+
+<h2>Three places state can live — and how to choose</h2>
+
+<h3>1. Local state — when nothing else needs to know</h3>
+<p>A dropdown's open/closed flag, an input's draft value before submit — nothing outside that component cares. Keep it local; this is the default, not a fallback.</p>
+
+<h3>2. Lifted / shared state — when siblings need one answer</h3>
+<p>Here, both <code>FollowButton</code> instances need the <em>same</em> answer. The fix is <strong>lifting state up</strong>: move <code>isFollowing</code> to the closest common ancestor of both buttons, and pass it down. If the two buttons are far apart in the tree (a header vs. a sidebar in different layout branches), "closest common ancestor" might be a page-level context or a small client-side store (Zustand, Context) — same principle, just a longer reach. <a href=https://www.developerway.com/posts/react-state-management-2025 target=_blank rel=noopener>Nadia Makarevich's 2025 framework</a> for this: default to lifting; only reach for a library when the "closest common ancestor" is unreasonably far up the tree.</p>
+<pre><code>// app/profile/[id]/page.tsx — the common ancestor now owns the fact
+export default function ProfilePage({ user, initialIsFollowing }: Props) {
+  const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
+  return (
+    &lt;&gt;
+      &lt;ProfileHeader user={user}&gt;
+        &lt;FollowButton isFollowing={isFollowing} onToggle={setIsFollowing} /&gt;
+      &lt;/ProfileHeader&gt;
+      &lt;SuggestedRow user={user}&gt;
+        &lt;FollowButton isFollowing={isFollowing} onToggle={setIsFollowing} /&gt;
+      &lt;/SuggestedRow&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+<h3>3. Derived state — when you can compute it instead of storing it</h3>
+<p>Now suppose the header also shows "1,204 followers." Don't store <code>followerCountLabel</code> in its own <code>useState</code> — it's a formatting of <code>followerCount</code>, computed fresh every render:</p>
+<pre><code>const followerCountLabel = new Intl.NumberFormat().format(followerCount) + " followers";</code></pre>
+<p>The moment you catch yourself writing a <code>useEffect</code> whose only job is to keep one piece of state in sync with another, that's the tell: one of them shouldn't be state at all — it should be <strong>derived</strong> at render time from the other.</p>
+
+<blockquote>Note <code>isFollowing</code> itself is arguably not really client state either — it's a fact about a relationship stored server-side. We're treating it as lifted client state here for the lifting-vs-duplication lesson, but Lesson 3 revisits where that fact should actually be read from, once request-time server data is on the table.</blockquote>
+
+<h2>Check your vocabulary</h2>
+
+<div class=quiz data-quiz data-explain="Right — the same fact (is this user followed?) is tracked in two places with no mechanism keeping them in sync.">
+  <p class=quiz-q>Two FollowButton instances for the same user disagree after one is clicked. What's the underlying problem called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Prop drilling</button>
+    <button class=quiz-opt data-correct=true>Duplicated state</button>
+    <button class=quiz-opt data-correct=false>Derived state</button>
+    <button class=quiz-opt data-correct=false>Tight coupling</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — moving state to the nearest shared ancestor and passing it down is called lifting state up.">
+  <p class=quiz-q>The fix moves isFollowing to the closest common ancestor of both buttons and passes it down as a prop. What's this move called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>State colocation</button>
+    <button class=quiz-opt data-correct=true>Lifting state up</button>
+    <button class=quiz-opt data-correct=false>Global storing</button>
+    <button class=quiz-opt data-correct=false>Prop composing</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — a value computed from other state at render time, instead of tracked in its own useState, is derived state.">
+  <p class=quiz-q>followerCountLabel is computed from followerCount on every render instead of living in its own useState. What's this called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Local state</button>
+    <button class=quiz-opt data-correct=false>Lifted state</button>
+    <button class=quiz-opt data-correct=true>Derived state</button>
+    <button class=quiz-opt data-correct=false>Global state</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<h2>Secondary track: what this does to your tests</h2>
+<p>The moment <code>isFollowing</code> moves from local to lifted/shared, testing <code>FollowButton</code> in isolation stops proving much — you'd need to fake the parent's state and the props contract just to see it render. This is exactly why Kent C. Dodds's <a href=https://kentcdodds.com/blog/the-testing-trophy-and-testing-classifications target=_blank rel=noopener>Testing Trophy</a> weights integration tests over isolated unit tests for UI: "the more your tests resemble the way your software is used, the more confidence they give you," and shared state is used across components, not inside one. A test that renders <code>ProfilePage</code> and clicks both buttons proves the sync works; a unit test of <code>FollowButton</code> alone can't.</p>
+
+<h2>Your turn: build something small</h2>
+
+<pre><code>// components/CartBadge.tsx  — nav icon, shows item count
+// components/CartSummary.tsx — sidebar panel, shows item count + subtotal
+// Both currently do: const [itemCount, setItemCount] = useState(initialCount);
+// Adding an item from CartSummary doesn't update CartBadge.</code></pre>
+
+<div class="callout callout-exercise">
+  <p class=callout-label>Exercise</p>
+  <p>In the scratchpad below:</p>
+  <ol>
+    <li>Name the state problem in <code>CartBadge</code>/<code>CartSummary</code> precisely.</li>
+    <li>Decide where <code>itemCount</code> should actually live — lifted to a common ancestor, a small global store, or derived from something else entirely (what would that something be?). Justify the choice.</li>
+    <li>Identify one value in this scenario that should be <em>derived</em> rather than stored (hint: something the summary panel shows besides the raw count).</li>
+  </ol>
+  <textarea class=scratchpad data-scratchpad=0002-cart-state placeholder="1) The problem is...
+
+2) itemCount should live...
+
+3) The derived value is..."></textarea>
+  <p class=scratchpad-hint>Saved locally in your browser as you type.</p>
+</div>
+
+<div class="callout callout-checkpoint">
+  <p class=callout-label>Check your answer</p>
+  <p>Make sure you've named the problem, decided where <code>itemCount</code> should live, and picked out the derived value before expanding this.</p>
+  <details class=reveal>
+    <summary>Reveal a potential answer</summary>
+    <p><strong>The problem:</strong> duplicated state — both components track their own <code>itemCount</code>, so adding an item in one doesn't update the other. <strong>Where it should live:</strong> lifted to the closest common ancestor (a cart context/provider) — both components are showing the same underlying cart, so there should be one copy of the count. <strong>The derived value:</strong> the subtotal shown in <code>CartSummary</code> — it should be computed from the cart's line items and prices at render time, not tracked in its own state.</p>
+  </details>
+</div>
+
+<div class=lesson-nav>
+  <span><a href=/design-thinking-lessons/lessons/0001-component-boundaries-coupling-cohesion.html>← Lesson 1 — Component boundaries</a></span>
+  <span><a href=/design-thinking-lessons/lessons/0003-rendering-strategy-ssr-ssg-streaming-rsc.html>Lesson 3 — Rendering strategy →</a></span>
+</div>
+
+</main>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.7e890af1.js></script>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.8eb40559.js></script>
+
+

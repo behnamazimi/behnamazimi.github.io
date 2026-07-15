@@ -1,0 +1,2 @@
+!function(){function t(t){var e="teach-scratchpad:"+t.getAttribute("data-scratchpad"),a=window.localStorage.getItem(e);a&&(t.value=a),t.addEventListener("input",function(){window.localStorage.setItem(e,t.value)})}document.addEventListener("DOMContentLoaded",function(){Array.prototype.forEach.call(document.querySelectorAll("[data-scratchpad]"),t)})}();
+//# sourceMappingURL=0001-component-boundaries-coupling-cohesion.8eb40559.js.map

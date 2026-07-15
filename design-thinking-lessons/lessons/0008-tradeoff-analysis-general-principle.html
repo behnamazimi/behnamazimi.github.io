@@ -1,0 +1,95 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Lesson 8 — Broadening: Tradeoff Analysis as a General Skill</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><body>
+<main>
+
+<p class=kicker>Lesson 0008 · Broadening pass 3 of 4 · Generalizes Lesson 3 · ~14 min</p>
+<h1>"It depends" is not an answer — naming the axes is</h1>
+<p class=subtitle>Every rendering choice in Lesson 3 was a freshness-vs-cost tradeoff wearing a Next.js costume.</p>
+
+<div class="callout callout-forward">
+  <p class=callout-label>Where this comes from</p>
+  <p><a href=/design-thinking-lessons/lessons/0003-rendering-strategy-ssr-ssg-streaming-rsc.html>Lesson 3</a>'s <code>ProfileHeader</code> chose to be cached (cheap, fast, briefly stale). Its <code>FollowButtonForViewer</code> chose to be computed live (always current, costs a request every time). Neither choice is universally right — each is a deliberate trade of freshness against cost. That trade has a name outside frontend, and it's one of the most famous in distributed systems.</p>
+</div>
+
+<h2>The general shape: CAP theorem</h2>
+<p>Eric Brewer's CAP theorem, stated for distributed data stores facing a network partition: you can't simultaneously guarantee <strong>Consistency</strong> (every read gets the latest write, or an error), <strong>Availability</strong> (every request gets a non-error response, even if not the latest data), and <strong>Partition tolerance</strong> (the system keeps working despite dropped messages between nodes). When a partition happens, you pick — consistency or availability; you don't get both. <a href=https://www.bmc.com/blogs/cap-theorem/ target=_blank rel=noopener>CAP Theorem Explained — BMC →</a>, primary source for this lesson.</p>
+<p>The literal theorem is about distributed databases. The <em>transferable</em> skill is the shape of the reasoning: name the specific things in tension, then state — out loud, in writing — which one you're deliberately giving up and why. That's <strong>tradeoff analysis</strong>. "It depends" is what you say before you've done it; naming the axes is what doing it looks like.</p>
+
+<h2>Mapping Lesson 3 onto this shape</h2>
+<p><code>ProfileHeader</code>'s <code>"use cache"</code> chose availability-and-speed over strict consistency: it will happily serve a slightly outdated bio rather than block or error. <code>FollowButtonForViewer</code> chose consistency over raw speed: it pays a request every time specifically so the answer is never wrong for the viewer asking. Same page, two different axis choices, both correct — because they're answering different questions about different data.</p>
+
+<h2>Check your vocabulary</h2>
+
+<div class=quiz data-quiz data-explain="Right — Consistency means every read gets the most recent write, or an explicit error rather than stale data.">
+  <p class=quiz-q>Every read receives the most recent write, or an error — never silently stale data. What's this guarantee called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Consistency</button>
+    <button class=quiz-opt data-correct=false>Availability</button>
+    <button class=quiz-opt data-correct=false>Durability</button>
+    <button class=quiz-opt data-correct=false>Isolation</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — Availability means every request gets a non-error response, without guaranteeing it's the latest write.">
+  <p class=quiz-q>Every request receives a non-error response, without any guarantee it reflects the very latest write. What's this guarantee called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Consistency</button>
+    <button class=quiz-opt data-correct=true>Availability</button>
+    <button class=quiz-opt data-correct=false>Isolation</button>
+    <button class=quiz-opt data-correct=false>Durability</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — tradeoff analysis is explicitly naming the competing axes and stating what you're deliberately sacrificing.">
+  <p class=quiz-q>Explicitly naming the specific things in tension and stating which one you're deliberately sacrificing, instead of saying "it depends." What's this skill called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Root cause analysis</button>
+    <button class=quiz-opt data-correct=true>Tradeoff analysis</button>
+    <button class=quiz-opt data-correct=false>Load testing</button>
+    <button class=quiz-opt data-correct=false>Code review</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<h2>Secondary track: this is the "Alternatives Considered" section</h2>
+<p>By now you've sketched a couple of ADRs across this course. The part of an ADR that's easiest to skip — and the part that actually proves you did tradeoff analysis instead of just picking the first option — is naming the alternative you rejected and why. <a href=https://adr.github.io/ target=_blank rel=noopener>adr.github.io →</a> If your Consequences section only lists upsides, you haven't written down the tradeoff — you've written down a decision with no analysis attached.</p>
+
+<h2>Your turn: name the axes</h2>
+<div class="callout callout-exercise">
+  <p class=callout-label>Exercise</p>
+  <p>Two features on the same e-commerce product page:</p>
+  <ul>
+    <li>A "12 people viewed this today" counter.</li>
+    <li>The "3 left in stock" inventory count shown right before checkout.</li>
+  </ul>
+  <p>In the scratchpad:</p>
+  <ol>
+    <li>For each, name which side of the consistency/availability tension you'd deliberately pick, and why the other one would actually hurt the business here.</li>
+    <li>State it as a one-line tradeoff statement for each ("We chose ___ over ___ because ___") — not "it depends."</li>
+  </ol>
+  <textarea class=scratchpad data-scratchpad=0008-cap-exercise placeholder="View counter: We chose... over... because...
+
+Inventory count: We chose... over... because..."></textarea>
+  <p class=scratchpad-hint>Saved locally in your browser as you type.</p>
+</div>
+
+<div class="callout callout-checkpoint">
+  <p class=callout-label>Check your answer</p>
+  <p>Check both one-liners against this — if either one is "it depends" dressed up, that's the thing to fix before moving on.</p>
+  <details class=reveal>
+    <summary>Reveal a potential answer</summary>
+    <p><strong>View counter:</strong> we chose availability over consistency because a slightly stale count is harmless, and the counter must never block or error just to stay perfectly accurate. <strong>Inventory count at checkout:</strong> we chose consistency over availability because serving a wrong "in stock" answer here means overselling — better to show an error or ask the shopper to recheck than let two people both "successfully" buy the last unit.</p>
+  </details>
+</div>
+
+<div class=lesson-nav>
+  <span><a href=/design-thinking-lessons/lessons/0007-state-information-architecture-general-principle.html>← Lesson 7 — Broadening: state as information architecture</a></span>
+  <span><a href=/design-thinking-lessons/lessons/0009-essential-accidental-complexity-general-principle.html>Lesson 9 — Broadening: essential vs. accidental complexity →</a></span>
+</div>
+
+</main>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.7e890af1.js></script>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.8eb40559.js></script>
+
+

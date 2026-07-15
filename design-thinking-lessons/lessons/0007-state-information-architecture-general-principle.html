@@ -1,0 +1,106 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Lesson 7 — Broadening: State as Information Architecture</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><body>
+<main>
+
+<p class=kicker>Lesson 0007 · Broadening pass 2 of 4 · Generalizes Lesson 2 · ~15 min</p>
+<h1>Every "where should this live" question is the same question</h1>
+<p class=subtitle>React didn't invent single-source-of-truth. Your MySQL schema has been asking you this since before you touched React.</p>
+
+<div class="callout callout-forward">
+  <p class=callout-label>Where this comes from</p>
+  <p><a href=/design-thinking-lessons/lessons/0002-state-local-global-derived.html>Lesson 2</a> fixed two <code>FollowButton</code>s disagreeing by giving <code>isFollowing</code> exactly one home. That's not a React idea wearing a React costume — it's the same problem a database schema solves with <strong>normalization</strong>, and the same problem a cached column solves (or mishandles) with <strong>denormalization</strong>.</p>
+</div>
+
+<h2>The same bug, in a schema instead of a component tree</h2>
+<pre><code>-- customers
+CREATE TABLE customers (id INT PRIMARY KEY, email VARCHAR(255));
+
+-- orders — email duplicated instead of referenced
+CREATE TABLE orders (
+  id INT PRIMARY KEY,
+  customer_id INT,
+  customer_email VARCHAR(255), -- ⚠️ same fact, second home
+  total DECIMAL(10,2)
+);</code></pre>
+<p>Update a customer's email, and every existing row in <code>orders</code> still has the old one. This is <em>exactly</em> Lesson 2's duplicated-state bug — the same fact tracked independently in two places, nothing forcing them to agree — just wearing SQL instead of JSX. The database-native name for organizing schema so each fact has one home is <strong>normalization</strong>: <code>orders</code> should hold <code>customer_id</code> and join to <code>customers</code> for the email, the same way Lesson 2's page held one <code>isFollowing</code> value and passed it down instead of letting each button keep its own. <a href=https://www.ibm.com/think/topics/database-normalization target=_blank rel=noopener>Database Normalization — IBM →</a>, primary source for this lesson.</p>
+
+<h2>Derived state has a database twin too — with a real tradeoff attached</h2>
+<p>Lesson 2's <code>followerCountLabel</code> was computed at render time, never stored. The database equivalent is a plain <code>VIEW</code> — computed fresh on every query, never stale, but potentially slow if the underlying join is expensive. Sometimes, deliberately, you trade that freshness for speed: a cached <code>order_count</code> column on <code>customers</code>, refreshed on a schedule instead of computed live. That's <strong>denormalization</strong> — and unlike the accidental <code>customer_email</code> duplication above, it's a real engineering tradeoff, not a bug, <em>as long as you know what you just signed up for</em>: the cached value can now be <strong>stale</strong> between refreshes. <a href=https://materialize.com/blog/why-use-a-materialized-view/ target=_blank rel=noopener>Why, How, and When to Use Materialized Views — Materialize →</a> lays out this exact tradeoff (note: MySQL has no native materialized view — the usual workaround is a real table populated by <code>INSERT...SELECT</code> and refreshed on a schedule or trigger).</p>
+
+<h2>Check your vocabulary</h2>
+
+<div class=quiz data-quiz data-explain="Right — normalization is the practice of giving each fact one home; storing customer_email in both tables violates it.">
+  <p class=quiz-q>customer_email is stored independently in both customers and orders, with nothing keeping the copies in sync. What database principle does this violate?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Normalization</button>
+    <button class=quiz-opt data-correct=false>Replication</button>
+    <button class=quiz-opt data-correct=false>Partitioning</button>
+    <button class=quiz-opt data-correct=false>Indexing</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — a cached order_count refreshed on a schedule, rather than computed live, is denormalized data.">
+  <p class=quiz-q>A cached order_count column on customers, refreshed on a schedule instead of computed fresh from orders every time. What's this called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Normalized data</button>
+    <button class=quiz-opt data-correct=true>Denormalized data</button>
+    <button class=quiz-opt data-correct=false>Partitioned data</button>
+    <button class=quiz-opt data-correct=false>Replicated data</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — staleness is the gap between when the source changes and when a cached/denormalized copy catches up.">
+  <p class=quiz-q>The delay between when the real data changes and when a cached or denormalized copy catches up. What's this called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Latency</button>
+    <button class=quiz-opt data-correct=true>Staleness</button>
+    <button class=quiz-opt data-correct=false>Contention</button>
+    <button class=quiz-opt data-correct=false>Deadlock</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<h2>Secondary track: denormalizing on purpose deserves an ADR</h2>
+<p>Adding a cached <code>order_count</code> column is a real architecture decision with a real cost (a trigger or cron job to maintain, a staleness window someone has to accept). It's exactly the shape Lesson 1 introduced: Context (live count query too slow at this table size), Decision (cache the count, refresh via trigger), Consequences (up to N minutes of staleness; one more thing that can silently break). <a href=https://adr.github.io/ target=_blank rel=noopener>adr.github.io →</a></p>
+
+<h2>Your turn: is this actually duplication?</h2>
+<pre><code>CREATE TABLE order_items (
+  id INT PRIMARY KEY,
+  order_id INT,
+  product_id INT,
+  product_name VARCHAR(255),   -- same fact as products.name?
+  unit_price DECIMAL(10,2)     -- same fact as products.price?
+);</code></pre>
+<div class="callout callout-exercise">
+  <p class=callout-label>Exercise</p>
+  <p><code>products</code> already has <code>name</code> and <code>price</code> columns. Before you call this duplication, think carefully. In the scratchpad:</p>
+  <ol>
+    <li>Is <code>order_items.product_name</code> / <code>unit_price</code> the <em>same fact</em> as <code>products.name</code> / <code>price</code>, or a different fact that happens to start out equal? (Hint: what happens to each one over the following year?)</li>
+    <li>Based on that, is storing them here a normalization bug, or the correct call? Justify it.</li>
+  </ol>
+  <textarea class=scratchpad data-scratchpad=0007-order-items-snapshot placeholder="1) Same fact or different fact?...
+
+2) Bug or correct, and why..."></textarea>
+  <p class=scratchpad-hint>Saved locally in your browser as you type.</p>
+</div>
+
+<div class="callout callout-checkpoint">
+  <p class=callout-label>Check your answer</p>
+  <p>This exercise has a real answer, not an "it depends" shrug — make sure you've committed to one before expanding this.</p>
+  <details class=reveal>
+    <summary>Reveal the answer</summary>
+    <p>They're <strong>not</strong> duplication — they're different facts that happen to start out equal. <code>products.name</code>/<code>price</code> are the current catalog values; <code>order_items.product_name</code>/<code>unit_price</code> are a snapshot of what was true <em>at the moment of purchase</em>. Over the following year the catalog price can change, but the receipt must not — that's the entire point of storing it separately. Storing both here is the correct call, not a normalization bug.</p>
+  </details>
+</div>
+
+<div class=lesson-nav>
+  <span><a href=/design-thinking-lessons/lessons/0006-coupling-cohesion-general-principle.html>← Lesson 6 — Broadening: coupling &amp; cohesion</a></span>
+  <span><a href=/design-thinking-lessons/lessons/0008-tradeoff-analysis-general-principle.html>Lesson 8 — Broadening: tradeoff analysis →</a></span>
+</div>
+
+</main>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.7e890af1.js></script>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.8eb40559.js></script>
+
+

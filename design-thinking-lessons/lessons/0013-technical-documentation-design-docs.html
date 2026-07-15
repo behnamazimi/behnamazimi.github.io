@@ -1,0 +1,95 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Lesson 13 — Technical Documentation &amp; Design Docs</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><body>
+<main>
+
+<p class=kicker>Lesson 0013 · Track: Process &amp; Collaboration (Design docs) · ~15 min</p>
+<h1>The document that would have caught Lesson 12's incident</h1>
+<p class=subtitle>Not every decision needs this. The ones with real tradeoffs and real risk do.</p>
+
+<div class="callout callout-forward">
+  <p class=callout-label>Where this connects</p>
+  <p>You've sketched four-line ADRs in Lessons 1, 3, 7, and 8 — Context / Decision / Consequences, one decision, quick. Lesson 3's caching architecture and Lesson 12's incident are exactly the case where that's not enough. This lesson is about when to reach for something bigger, and what "bigger" actually contains.</p>
+</div>
+
+<h2>ADR vs. design doc — different jobs</h2>
+<p>An ADR records <em>one</em> decision, after the fact or right before it, tersely — Context, Decision, Consequences. A full <strong>design doc</strong> is written <em>before</em> building something with real tradeoffs, for an audience who wasn't in the room: it states the problem, what's explicitly in and out of scope, the proposed approach, the alternatives that were rejected and why, and the risks. <a href=https://adr.github.io/ target=_blank rel=noopener>adr.github.io →</a> remains the primary source for the ADR half; the design-doc half doesn't have one canonical source the way ADRs do — treat the structure below as the practical minimum, not gospel from one author.</p>
+
+<h2>The section everyone skips, and the one that would have mattered here</h2>
+<p>A design doc for Lesson 3's <code>ProfileHeader</code> caching decision needs a <strong>Non-goals</strong> section — stating what this design explicitly isn't trying to solve, so scope doesn't silently creep — and an <strong>Alternatives considered</strong> section: cache with no TTL, cache with a short TTL, don't cache at all, cache but explicitly key by every runtime input. Writing that section down is what actually proves Lesson 8's tradeoff analysis happened, instead of just picking the first option that worked in dev. And a <strong>Risks</strong> section stating "if the cache key ever omits an argument, one user's data could leak to another" is precisely the sentence that — if written down before shipping — turns Lesson 12's incident from a surprise into a known, watched-for failure mode.</p>
+
+<h2>Check your vocabulary</h2>
+
+<div class=quiz data-quiz data-explain="Right — a Non-goals section states what a design explicitly isn't trying to solve, to bound scope.">
+  <p class=quiz-q>A design doc section stating what this design explicitly is NOT trying to solve, to bound scope. What's it called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Non-goals</button>
+    <button class=quiz-opt data-correct=false>Consequences</button>
+    <button class=quiz-opt data-correct=false>Constraints</button>
+    <button class=quiz-opt data-correct=false>Alternatives</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — the Alternatives Considered section is the part most likely to get skipped, and the part that actually proves tradeoff analysis happened.">
+  <p class=quiz-q>The design-doc section most likely to get skipped, and the one that actually proves Lesson 8's tradeoff analysis happened rather than picking the first working option. Which section?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Alternatives considered</button>
+    <button class=quiz-opt data-correct=false>Consequences</button>
+    <button class=quiz-opt data-correct=false>Rollout plan</button>
+    <button class=quiz-opt data-correct=false>Success metrics</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — writing 'we chose X over Y because Z' in a design doc's alternatives-considered section is a direct application of tradeoff analysis.">
+  <p class=quiz-q>Writing "we chose availability over consistency because X" in a design doc's alternatives-considered section directly applies which Lesson 8 skill?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Tradeoff analysis</button>
+    <button class=quiz-opt data-correct=false>Root cause analysis</button>
+    <button class=quiz-opt data-correct=false>Code review</button>
+    <button class=quiz-opt data-correct=false>Blast radius assessment</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<h2>Your turn: write the doc that would have prevented the incident</h2>
+<div class="callout callout-exercise">
+  <p class=callout-label>Exercise</p>
+  <p>In the scratchpad, write a short design doc for the <code>ProfileHeader</code> caching decision from Lesson 3, with these headers:</p>
+  <ol>
+    <li><strong>Problem</strong> — what's slow or expensive without caching.</li>
+    <li><strong>Goals / Non-goals</strong> — what this design does and explicitly doesn't address.</li>
+    <li><strong>Proposed design</strong> — one paragraph, the actual approach.</li>
+    <li><strong>Alternatives considered</strong> — at least one you rejected, and why.</li>
+    <li><strong>Risks</strong> — including, explicitly, the cache-key mistake from Lesson 12's incident, and what would catch it before production.</li>
+  </ol>
+  <textarea class=scratchpad data-scratchpad=0013-caching-design-doc placeholder="Problem:
+
+Goals / Non-goals:
+
+Proposed design:
+
+Alternatives considered:
+
+Risks:"></textarea>
+  <p class=scratchpad-hint>Saved locally in your browser as you type.</p>
+</div>
+
+<div class="callout callout-checkpoint">
+  <p class=callout-label>Check your answer</p>
+  <p>This closes the secondary track. Check your Risks section specifically — if it reads like it was written after the incident rather than before, that's worth noticing about how design docs get written in real projects too.</p>
+  <details class=reveal>
+    <summary>Reveal a model design doc</summary>
+    <p><strong>Problem:</strong> without caching, <code>ProfileHeader</code> re-queries the database on every request. <strong>Goals / Non-goals:</strong> goal — cache the parts of a profile that are identical for every viewer; non-goal — this doesn't address per-viewer personalization (follow status), which is handled separately. <strong>Proposed design:</strong> cache <code>ProfileHeader</code> with <code>"use cache"</code> keyed only by <code>userId</code>; stream the viewer-specific follow button separately via <code>Suspense</code>, reading the viewer's cookie at request time. <strong>Alternatives considered:</strong> caching the whole page including follow state — rejected, since that's precisely the mechanism behind Lesson 12's incident. <strong>Risks:</strong> if a future change makes <code>ProfileHeader</code> read anything else from cookies/headers, the cache key must be updated to include it, or one viewer's cached output could leak to another — add a test asserting the cache key covers every runtime value the function reads.</p>
+  </details>
+</div>
+
+<div class=lesson-nav>
+  <span><a href=/design-thinking-lessons/lessons/0012-incident-response-basics.html>← Lesson 12 — Incident response basics</a></span>
+  <span><a href=/design-thinking-lessons/index.html>Course home</a></span>
+</div>
+
+</main>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.7e890af1.js></script>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.8eb40559.js></script>
+
+

@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Cheat Sheet — State: Local, Global, Derived</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><style>main{max-width:640px}.term{margin-bottom:1.1rem}.term dt{font-weight:600;font-family:var(--font-mono);font-size:.95rem}.term dd{margin:.2rem 0 0}table{border-collapse:collapse;width:100%;margin:1rem 0 1.4rem;font-size:.9rem}th,td{text-align:left;border-bottom:1px solid var(--color-border);padding:.4rem .6rem}</style><body>
+<main>
+
+<p class=kicker>Reference · From Lesson 0002</p>
+<h1>State Cheat Sheet</h1>
+
+<h2>Terms</h2>
+<dl>
+  <div class=term>
+    <dt>Duplicated state</dt>
+    <dd>The same fact tracked independently in more than one place. Nothing forces the copies to agree, so they eventually diverge.</dd>
+  </div>
+  <div class=term>
+    <dt>Lifting state up</dt>
+    <dd>Moving state from a component to its closest common ancestor with the other components that need it, then passing it down as props.</dd>
+  </div>
+  <div class=term>
+    <dt>Derived state</dt>
+    <dd>A value computed from other state at render time rather than stored in its own <code>useState</code>. A <code>useEffect</code> whose only job is syncing two state values is a sign one of them should be derived instead.</dd>
+  </div>
+  <div class=term>
+    <dt>Global / shared client state</dt>
+    <dd>State read by components with no reasonably close common ancestor — reached via Context or a library (Zustand, etc.), not the default choice.</dd>
+  </div>
+</dl>
+
+<h2>Decision order</h2>
+<table>
+  <tr><th>Ask<th>If yes →</tr>
+  <tr><td>Can I compute this from other state/props right now?<td>Derived state — don't store it</tr>
+  <tr><td>Does only one component (or its children) need it?<td>Local state</tr>
+  <tr><td>Do siblings need the same answer?<td>Lift to closest common ancestor</tr>
+  <tr><td>Is the common ancestor unreasonably far up the tree?<td>Global/shared client state</tr>
+  <tr><td>Is this actually a fact that lives server-side?<td>Reconsider whether it should be client state at all (→ Lesson 3)</tr>
+</table>
+
+<h2>Primary sources</h2>
+<p><a href=https://react.dev/learn/choosing-the-state-structure target=_blank rel=noopener>Choosing the State Structure — react.dev</a> · <a href=https://www.developerway.com/posts/react-state-management-2025 target=_blank rel=noopener>React State Management in 2025 — Developer Way</a></p>
+
+<p><a href=/design-thinking-lessons/lessons/0002-state-local-global-derived.html>← Back to Lesson 2</a></p>
+
+</main>
+
+

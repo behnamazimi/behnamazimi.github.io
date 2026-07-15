@@ -1,0 +1,92 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Lesson 9 — Broadening: Essential vs. Accidental Complexity</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><body>
+<main>
+
+<p class=kicker>Lesson 0009 · Broadening pass 4 of 4 · Generalizes Lessons 4–5 · ~14 min</p>
+<h1>Which cost is the problem's, and which is yours?</h1>
+<p class=subtitle>The whole-Card "use client" mistake and the accidental data waterfall are the same kind of cost — one you added, not one the problem demanded.</p>
+
+<div class="callout callout-forward">
+  <p class=callout-label>Where this comes from</p>
+  <p><a href=/design-thinking-lessons/lessons/0004-performance-scalability-tradeoffs.html>Lesson 4</a>'s oversized client bundle and <a href=/design-thinking-lessons/lessons/0005-data-fetching-architecture.html>Lesson 5</a>'s sequential-by-accident waterfall share something: neither cost was required by the actual problem (show a follow button; show artist and albums). Both were self-inflicted by how the code happened to be written. Fred Brooks gave this distinction a name in 1986, and it still holds.</p>
+</div>
+
+<h2>The general version: essential vs. accidental complexity</h2>
+<p>In <em>No Silver Bullet</em>, Brooks splits software difficulty into two kinds. <strong>Essential complexity</strong> comes from the problem itself — inherent to what you're actually trying to do, and no architecture choice removes it, only manages it. <strong>Accidental complexity</strong> comes from the tools, techniques, and choices you brought to the problem — and, unlike essential complexity, it can genuinely be eliminated. <a href=https://www.cs.unc.edu/techreports/86-020.pdf target=_blank rel=noopener>No Silver Bullet — Fred Brooks (1986) →</a>, primary source, read directly from the original tech report rather than a summary.</p>
+
+<p>A checkout flow that must handle payment failures, partial fulfillment, and currency conversion has real essential complexity — that difficulty is the problem's, and it doesn't go away no matter how you architect it. A whole <code>Card</code> subtree marked <code>"use client"</code> so one button can <code>useState</code> is pure accidental complexity — nothing about "show a follow button" required shipping the avatar's JS to the browser. The waterfall in Lesson 5 is the same: nothing about "show an artist and their albums" required the second request to wait for the first.</p>
+
+<h2>The discipline for deciding what to fix: premature optimization</h2>
+<p>Knowing accidental complexity exists doesn't mean chasing all of it immediately. Donald Knuth, 1974: "We should forget about small efficiencies, say about 97% of the time: premature optimization is the root of all evil. Yet we should not pass up our opportunities in that critical 3%." The full quote matters — it's not an argument against optimizing, it's an argument against optimizing <em>before you know which 3% is real</em>. This is exactly what Lesson 4's Core Web Vitals are for: they tell you where the actual 3% is, instead of guessing.</p>
+
+<h2>Check your vocabulary</h2>
+
+<div class=quiz data-quiz data-explain="Right — essential complexity is inherent to the problem; no architecture removes it, only manages it.">
+  <p class=quiz-q>Complexity inherent to the problem itself — no clever architecture removes it, only manages it. What's Brooks's term?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Essential complexity</button>
+    <button class=quiz-opt data-correct=false>Accidental complexity</button>
+    <button class=quiz-opt data-correct=false>Emergent complexity</button>
+    <button class=quiz-opt data-correct=false>Cyclomatic complexity</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — accidental complexity comes from tooling and choices, not the problem, and can genuinely be eliminated.">
+  <p class=quiz-q>A bloated client bundle from an unnecessary "use client," or a data waterfall from careless sequencing. What's Brooks's specific term for this kind of cost, as distinct from technical debt?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Essential complexity</button>
+    <button class=quiz-opt data-correct=true>Accidental complexity</button>
+    <button class=quiz-opt data-correct=false>Technical debt</button>
+    <button class=quiz-opt data-correct=false>Scope creep</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — premature optimization means spending effort optimizing before measurement shows it's actually the bottleneck.">
+  <p class=quiz-q>Spending effort optimizing a piece of code before measuring whether it's actually the bottleneck. What's this called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Premature optimization</button>
+    <button class=quiz-opt data-correct=false>Technical debt</button>
+    <button class=quiz-opt data-correct=false>Feature creep</button>
+    <button class=quiz-opt data-correct=false>Scope creep</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<h2>Secondary track: full circle to code review</h2>
+<p>Lesson 4 already used Google's code-review lens — "is this complexity justified?" You now have Brooks's sharper version of the same question: <em>is this complexity essential to the problem, or accidental complexity someone (possibly you) introduced?</em> A reviewer who asks this explicitly, by name, catches things a vaguer "seems complicated" comment misses. <a href=https://google.github.io/eng-practices/review/reviewer/standard.html target=_blank rel=noopener>The Standard of Code Review — Google eng-practices →</a></p>
+
+<h2>Your turn: reclassify your own earlier answers</h2>
+<div class="callout callout-exercise">
+  <p class=callout-label>Exercise</p>
+  <p>Go back to your own answers from Lesson 4's exercise (the <code>ArticleList</code> "use client" problem) and Lesson 5's exercise (the <code>ProductPage</code> sequencing problem). In the scratchpad:</p>
+  <ol>
+    <li>State each one explicitly in Brooks's terms: what was the essential complexity of the actual feature, and what was the accidental complexity someone added on top of it?</li>
+    <li>Now name one place in your <em>real</em> work where you suspect there's accidental complexity you haven't measured yet — and what you'd check before touching it, per Knuth's 97%/3% rule.</li>
+  </ol>
+  <textarea class=scratchpad data-scratchpad=0009-reclassify-complexity placeholder="1) ArticleList — essential: ... accidental: ...
+   ProductPage — essential: ... accidental: ...
+
+2) A real suspect in my own work is... I'd check... before touching it."></textarea>
+  <p class=scratchpad-hint>Saved locally in your browser as you type.</p>
+</div>
+
+<div class="callout callout-checkpoint">
+  <p class=callout-label>Check your answer</p>
+  <p>This closes both passes of the course — narrow and broad. If the vocabulary from Lessons 1–8 comes out fluently while you write this, that's the actual signal this course was aiming for, not just having read nine lessons.</p>
+  <details class=reveal>
+    <summary>Reveal a potential answer</summary>
+    <p><strong>ArticleList:</strong> essential complexity is that a read-more toggle's expanded/collapsed state has to live somewhere; accidental complexity was making the entire list a Client Component to get it, instead of just the toggle. <strong>ProductPage:</strong> essential complexity is that reviews and related products both need data derived from the product; accidental complexity was fetching them sequentially when neither depends on the other. There's no fixed answer for your own real-world example, but a working test: essential complexity would survive a from-scratch rewrite of the feature; accidental complexity is specific to how this particular version happened to get built.</p>
+  </details>
+</div>
+
+<div class=lesson-nav>
+  <span><a href=/design-thinking-lessons/lessons/0008-tradeoff-analysis-general-principle.html>← Lesson 8 — Broadening: tradeoff analysis</a></span>
+  <span><a href=/design-thinking-lessons/lessons/0010-code-review-practices.html>Lesson 10 — Code review practices →</a></span>
+</div>
+
+</main>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.7e890af1.js></script>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.8eb40559.js></script>
+
+

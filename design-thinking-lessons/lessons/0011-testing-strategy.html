@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Lesson 11 — Testing Strategy</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><body>
+<main>
+
+<p class=kicker>Lesson 0011 · Track: Process &amp; Collaboration (Testing strategy) · ~16 min</p>
+<h1>Which test actually earns its keep?</h1>
+<p class=subtitle>Every architecture decision so far quietly decided how testable its own code would be.</p>
+
+<div class="callout callout-forward">
+  <p class=callout-label>Where this connects</p>
+  <p>Lessons 2 and 5 each reached for this track once — shared state hurting isolated tests, waterfalls hiding from mocked ones. This lesson gives the whole shape a name.</p>
+</div>
+
+<h2>The trophy, not the pyramid</h2>
+<p>Kent C. Dodds's <strong>Testing Trophy</strong> ranks test types by confidence-per-cost, not by count: <strong>static analysis</strong> (types, lint — catches typos and shape errors before anything runs), <strong>unit tests</strong> (one function or component, isolated), <strong>integration tests</strong> (several units working together, the way they actually get used), and <strong>E2E tests</strong> (a real browser against something close to production). His rule: "the more your tests resemble the way your software is used, the more confidence they can give you" — which is why the trophy is fattest in the middle, at integration, rather than at the base, unlike the older Testing Pyramid. <a href=https://kentcdodds.com/blog/the-testing-trophy-and-testing-classifications target=_blank rel=noopener>The Testing Trophy — Kent C. Dodds →</a>, primary source, and the same one Lessons 2 and 5 already pointed to.</p>
+
+<h2>Your architecture already picked your tests for you</h2>
+<p>Three places this course's own examples already showed it:</p>
+<ul>
+  <li><strong>Lesson 1's <code>Card</code></strong> is trivially unit-testable — render it with different children, assert the output — precisely because it's a deep, cohesive module with no hidden dependency on anything else. The original <code>UserProfileCard</code>, with eleven interdependent booleans, would need a combinatorial pile of unit tests just to cover its own interface.</li>
+  <li><strong>Lesson 2's lifted <code>isFollowing</code></strong> means a unit test of <code>FollowButton</code> alone can pass while the actual bug (two instances disagreeing) is invisible — you need an integration test that renders the common ancestor and both buttons together.</li>
+  <li><strong>Lesson 3's Server Components</strong> are <code>async</code> functions that run only on the server; you can't hand one to React Testing Library's <code>render()</code> the way you would a Client Component. In practice this pushes verification toward integration tests (render the route, assert on output) or E2E — a real, current gap worth naming rather than discovering by surprise.</li>
+</ul>
+
+<h2>Check your vocabulary</h2>
+
+<div class=quiz data-quiz data-explain="Right — the Testing Trophy weights integration tests heaviest, on the principle that tests resembling real usage give the most confidence.">
+  <p class=quiz-q>Kent C. Dodds's model, where integration tests form the bulk of the suite rather than unit tests. What's it called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Testing Trophy</button>
+    <button class=quiz-opt data-correct=false>Testing Pyramid</button>
+    <button class=quiz-opt data-correct=false>Test Double</button>
+    <button class=quiz-opt data-correct=false>Code Coverage</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — a test with instantly-resolving mocks can't reveal request ordering; only something exercising real or realistic async timing catches a waterfall.">
+  <p class=quiz-q>A test mocks fetch as already-resolved, so it can't reveal whether two requests ran sequentially or in parallel. Which trophy layer would actually catch a data waterfall regression?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Static analysis</button>
+    <button class=quiz-opt data-correct=false>Unit tests</button>
+    <button class=quiz-opt data-correct=true>Integration tests</button>
+    <button class=quiz-opt data-correct=false>Type checking</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — async Server Components can't be handed to render() the way Client Components can, so verification shifts toward integration/E2E.">
+  <p class=quiz-q>An async Server Component can't be rendered in isolation with the usual client-side testing-library render() call. What should this push you toward?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Favor integration tests</button>
+    <button class=quiz-opt data-correct=false>Favor unit tests</button>
+    <button class=quiz-opt data-correct=false>Favor snapshot tests</button>
+    <button class=quiz-opt data-correct=false>Skip testing it</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<h2>Your turn: plan the trophy for a real feature</h2>
+<div class="callout callout-exercise">
+  <p class=callout-label>Exercise</p>
+  <p>Using the Lesson 1–3 <code>ProfilePage</code> (<code>Card</code>, <code>FollowButton</code>, <code>FollowButtonForViewer</code>), fill in one concrete test per layer in the scratchpad:</p>
+  <ol>
+    <li><strong>Unit:</strong> one thing worth unit-testing in isolation, and why it's safe to (what makes it cohesive enough not to need its neighbors).</li>
+    <li><strong>Integration:</strong> one thing that requires rendering more than one component together — specifically, what bug would only show up at this layer.</li>
+    <li><strong>E2E:</strong> one thing that requires a real browser and can't be faked with mocks.</li>
+  </ol>
+  <textarea class=scratchpad data-scratchpad=0011-profilepage-test-plan placeholder="Unit: ...
+
+Integration: ...
+
+E2E: ..."></textarea>
+  <p class=scratchpad-hint>Saved locally in your browser as you type.</p>
+</div>
+
+<div class="callout callout-checkpoint">
+  <p class=callout-label>Check your answer</p>
+  <p>Check specifically whether your integration-test pick is catching something a unit test structurally can't — not just "a bigger unit test."</p>
+  <details class=reveal>
+    <summary>Reveal a potential answer</summary>
+    <p><strong>Unit:</strong> <code>Card</code> rendered in isolation with different children — safe because it's cohesive and has no dependency on anything outside itself. <strong>Integration:</strong> render the page and confirm <code>FollowButtonForViewer</code> shows the correct follow state for the current viewer's cookie — this is the layer that would actually catch a caching/cookie-key mistake like Lesson 3's; a unit test mocking the viewer ID away can't. <strong>E2E:</strong> click Follow in a real browser, reload the page, and confirm it's still following — this crosses the real server action, cookie, and database round-trip that no mock can fake.</p>
+  </details>
+</div>
+
+<div class=lesson-nav>
+  <span><a href=/design-thinking-lessons/lessons/0010-code-review-practices.html>← Lesson 10 — Code review practices</a></span>
+  <span><a href=/design-thinking-lessons/lessons/0012-incident-response-basics.html>Lesson 12 — Incident response basics →</a></span>
+</div>
+
+</main>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.7e890af1.js></script>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.8eb40559.js></script>
+
+

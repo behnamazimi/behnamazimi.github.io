@@ -1,0 +1,125 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Lesson 6 — Broadening: Coupling &amp; Cohesion as a General Principle</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><body>
+<main>
+
+<p class=kicker>Lesson 0006 · Broadening pass 1 of 4 · Generalizes Lesson 1 · ~15 min</p>
+<h1>Same words, no React in sight</h1>
+<p class=subtitle>If coupling and cohesion only mean something inside a <code>.tsx</code> file, you haven't actually learned the principle — you've memorized where it shows up once.</p>
+
+<div class="callout callout-forward">
+  <p class=callout-label>Where this comes from</p>
+  <p><a href=/design-thinking-lessons/lessons/0001-component-boundaries-coupling-cohesion.html>Lesson 1</a> used cohesion and coupling to fix a React component. This lesson strips the React away and asks: what's the actual, language-independent idea — and does it show up the same way in your PHP and MySQL work?</p>
+</div>
+
+<h2>The general version: deep modules, not just cohesive components</h2>
+<p>John Ousterhout's framing in <em>A Philosophy of Software Design</em> generalizes exactly what Lesson 1 did with <code>Card</code>: a module's value is its functionality divided by the complexity of its interface. A <strong>deep module</strong> has a simple interface hiding substantial complexity. A <strong>shallow module</strong> has an interface about as complex as what it actually does — you're paying interface-complexity tax without buying much hidden-complexity benefit. The mechanism that makes a module deep is <strong>information hiding</strong>: callers depend on what a module promises, not on how it's built inside. <a href=https://web.stanford.edu/~ouster/cgi-bin/aposd.php target=_blank rel=noopener>A Philosophy of Software Design — John Ousterhout →</a>, the primary source for this lesson.</p>
+
+<p><code>Card</code> from Lesson 1, after the refactor, is a deep module: three props and a slot API hide all of the layout mechanics. The original <code>UserProfileCard</code> was shallow: eleven props whose combinations you had to understand just to use it safely — the interface was nearly as complicated as the behavior it produced.</p>
+
+<h2>The same shape in PHP</h2>
+<p>Here's a repository class with the identical disease, no JSX anywhere:</p>
+<pre><code>&lt;?php
+final class OrderRepository
+{
+    private ?string $statusFilter = null;
+    private ?DateTimeImmutable $dateFrom = null;
+    private ?DateTimeImmutable $dateTo = null;
+
+    public function setStatusFilter(string $status): void { $this-&gt;statusFilter = $status; }
+    public function setDateFrom(DateTimeImmutable $d): void { $this-&gt;dateFrom = $d; }
+    public function setDateTo(DateTimeImmutable $d): void { $this-&gt;dateTo = $d; }
+
+    public function execute(): array
+    {
+        // Builds SQL from whichever setters happened to be called, in whatever order.
+    }
+}
+
+// Caller must know the right setter sequence before execute() behaves correctly —
+// the exact same problem as UserProfileCard's boolean combinations.
+$repo = new OrderRepository();
+$repo-&gt;setStatusFilter('paid');
+$repo-&gt;setDateFrom($from);
+$result = $repo-&gt;execute();</code></pre>
+<p>This is shallow for the same reason <code>UserProfileCard</code> was: the interface (three setters plus an order-dependent <code>execute</code>) doesn't hide complexity, it just relocates it into "which setters did you remember to call." The deep alternative collapses the whole thing into one call whose argument <em>is</em> the interface:</p>
+<pre><code>&lt;?php
+final class OrderRepository
+{
+    public function findByFilters(OrderFilters $filters): array
+    {
+        // Query construction, indexing strategy, pagination — all hidden here.
+    }
+}
+
+$result = $repo-&gt;findByFilters(new OrderFilters(status: 'paid', from: $from));</code></pre>
+<p>One method. The caller states what it wants; it never needs to know how the SQL gets built, in what order, or with what internal state. That's information hiding doing the same job <code>Card.Avatar</code> / <code>Card.Body</code> / <code>Card.Actions</code> did for a UI tree.</p>
+
+<h2>Check your vocabulary</h2>
+
+<div class=quiz data-quiz data-explain="Right — a deep module has a simple interface hiding substantial implementation complexity.">
+  <p class=quiz-q>A module whose interface is simple relative to how much complexity it hides. What's Ousterhout's term for this?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Deep module</button>
+    <button class=quiz-opt data-correct=false>Shallow module</button>
+    <button class=quiz-opt data-correct=false>Loose coupling</button>
+    <button class=quiz-opt data-correct=false>Low cohesion</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — the setter-sequence OrderRepository's interface complexity is about as high as its actual behavior — that's a shallow module.">
+  <p class=quiz-q>The setter-based OrderRepository forces callers to learn its internal call-order rules just to use it correctly. What's this kind of module called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=false>Deep module</button>
+    <button class=quiz-opt data-correct=true>Shallow module</button>
+    <button class=quiz-opt data-correct=false>Derived module</button>
+    <button class=quiz-opt data-correct=false>Composed module</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<div class=quiz data-quiz data-explain="Right — information hiding means callers depend on a module's promises, not its internals.">
+  <p class=quiz-q>Callers depend on what a module promises to do, never on how it's implemented internally. What's this mechanism called?</p>
+  <div class=quiz-opts>
+    <button class=quiz-opt data-correct=true>Information hiding</button>
+    <button class=quiz-opt data-correct=false>State lifting</button>
+    <button class=quiz-opt data-correct=false>Content streaming</button>
+    <button class=quiz-opt data-correct=false>Request memoization</button>
+  </div>
+  <p class=quiz-feedback data-feedback hidden></p>
+</div>
+
+<h2>Secondary track: this is a review heuristic in any language</h2>
+<p>"Is this deep or shallow?" is a code-review question independent of framework — it works the same on a PHP repository, a MySQL stored procedure, or a TypeScript hook. Once you have the vocabulary, you can ask a reviewer (or yourself) the Lesson 4 question — "is this complexity justified?" — with a precise answer instead of a vague feeling that something's "messy."</p>
+
+<h2>Your turn: find one in the wild</h2>
+<div class="callout callout-exercise">
+  <p class=callout-label>Exercise</p>
+  <p>Think of a real class, function, or SQL layer from your own PHP or MySQL work — not this example. In the scratchpad:</p>
+  <ol>
+    <li>Describe one that's shallow: what does its interface expose, and why is that about as complex as what it does?</li>
+    <li>Sketch what a deeper version of it would look like — what would move from "caller's problem" to "hidden inside"?</li>
+  </ol>
+  <textarea class=scratchpad data-scratchpad=0006-deep-shallow-real-example placeholder="1) A shallow example from my own work is...
+
+2) A deeper version would..."></textarea>
+  <p class=scratchpad-hint>Saved locally in your browser as you type.</p>
+</div>
+
+<div class="callout callout-checkpoint">
+  <p class=callout-label>Check your answer</p>
+  <details class=reveal>
+    <summary>How to tell if it landed</summary>
+    <p>There's no single correct example here — it's your own code. The test: does describing your "shallow" example require a caller to remember a specific sequence or combination of calls before it behaves correctly (like <code>OrderRepository</code>'s setters)? And does your "deeper" version collapse that into one call whose argument states the intent directly (like <code>findByFilters</code>)? If both hold, the generalization landed. If you could only describe the shallow example using React terms, it hasn't yet — that's the real test of this broadening pass.</p>
+  </details>
+</div>
+
+<div class=lesson-nav>
+  <span><a href=/design-thinking-lessons/lessons/0005-data-fetching-architecture.html>← Lesson 5 — Data fetching</a></span>
+  <span><a href=/design-thinking-lessons/lessons/0007-state-information-architecture-general-principle.html>Lesson 7 — Broadening: state as information architecture →</a></span>
+</div>
+
+</main>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.7e890af1.js></script>
+<script src=/design-thinking-lessons/0001-component-boundaries-coupling-cohesion.8eb40559.js></script>
+
+

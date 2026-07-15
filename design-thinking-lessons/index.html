@@ -1,0 +1,152 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Frontend Architecture &amp; Design Thinking</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><style>main{max-width:780px}.topic-list{margin:0 0 2rem;padding:0;list-style:none}.topic{border-bottom:1px solid var(--color-border);justify-content:space-between;align-items:baseline;gap:1rem;padding:.85rem 0;display:flex}.topic:last-child{border-bottom:none}.topic-num{font-family:var(--font-mono);color:var(--color-muted);flex-shrink:0;width:1.6rem;font-size:.85rem}.topic-main{flex:1}.topic-title{font-weight:600}.topic-title a{text-decoration:none}.topic-desc{color:var(--color-muted);margin-top:.15rem;font-size:.9rem}.topic-ref{font-family:var(--font-mono);margin-top:.3rem;font-size:.75rem}.badge{font-family:var(--font-mono);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;background:var(--color-correct-soft);color:var(--color-correct);border-radius:4px;align-self:center;padding:.25rem .55rem;font-size:.7rem}.pass-label{font-family:var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);margin:0 0 .6rem;font-size:.75rem}.track-secondary{border:1px solid var(--color-border);background:#fff;border-radius:8px;margin-bottom:2rem;padding:1.2rem 1.4rem}.quick-links{font-family:var(--font-mono);flex-wrap:wrap;gap:1.2rem;margin-bottom:2.5rem;font-size:.85rem;display:flex}</style><body>
+<main>
+
+<p class=kicker>Teaching workspace</p>
+<h1>Frontend Architecture &amp; Design Thinking</h1>
+<p class=subtitle>Next.js / TypeScript in your daily work, broadened into general software design — taught so it sticks, not just so it's covered.</p>
+
+<div class=quick-links>
+  <a href=/design-thinking-lessons/MISSION.md>Mission</a>
+  <a href=/design-thinking-lessons/RESOURCES.md>Resources</a>
+  <a href=/design-thinking-lessons/NOTES.md>Notes / ground rules</a>
+</div>
+
+<h2>How this works</h2>
+<p>Every lesson pairs a short, real Next.js/TypeScript (or, in the broadening pass, PHP/MySQL) case study with a build-it-yourself exercise. Try the exercise first, then expand the model answer underneath it — comparing your own reasoning against a concrete verdict, not just reading the lesson, is what actually makes the vocabulary stick. Each lesson also links a companion cheat sheet for quick reference later.</p>
+
+<h2>Primary track — frontend architecture as one system</h2>
+<p class=pass-label>Narrow pass — grounded in your daily Next.js/TypeScript stack</p>
+<ol class=topic-list>
+  <li class=topic>
+    <span class=topic-num>1</span>
+    <span class=topic-main>
+      <span class=topic-title><a href=/design-thinking-lessons/lessons/0001-component-boundaries-coupling-cohesion.html>Component/API design</a></span>
+      <div class=topic-desc>Boundaries, composition, props/interface design, coupling &amp; cohesion.</div>
+      <div class=topic-ref><a href=/design-thinking-lessons/reference/0001-component-boundaries-cheatsheet.html>Cheat sheet →</a></div>
+    </span>
+    <span class=badge>Available</span>
+  </li>
+  <li class=topic>
+    <span class=topic-num>2</span>
+    <span class=topic-main>
+      <span class=topic-title><a href=/design-thinking-lessons/lessons/0002-state-local-global-derived.html>State management strategy</a></span>
+      <div class=topic-desc>Local vs. global state, derived state, data flow patterns.</div>
+      <div class=topic-ref><a href=/design-thinking-lessons/reference/0002-state-cheatsheet.html>Cheat sheet →</a></div>
+    </span>
+    <span class=badge>Available</span>
+  </li>
+  <li class=topic>
+    <span class=topic-num>3</span>
+    <span class=topic-main>
+      <span class=topic-title><a href=/design-thinking-lessons/lessons/0003-rendering-strategy-ssr-ssg-streaming-rsc.html>Rendering strategy</a></span>
+      <div class=topic-desc>SSR, SSG, streaming, React Server Components — and when each applies (current Next.js 16 Cache Components model).</div>
+      <div class=topic-ref><a href=/design-thinking-lessons/reference/0003-rendering-cheatsheet.html>Cheat sheet →</a></div>
+    </span>
+    <span class=badge>Available</span>
+  </li>
+  <li class=topic>
+    <span class=topic-num>4</span>
+    <span class=topic-main>
+      <span class=topic-title><a href=/design-thinking-lessons/lessons/0004-performance-scalability-tradeoffs.html>Performance &amp; scalability tradeoffs</a></span>
+      <div class=topic-desc>Bundle size, hydration cost, Core Web Vitals — what the first three decisions cost, and who pays.</div>
+      <div class=topic-ref><a href=/design-thinking-lessons/reference/0004-performance-cheatsheet.html>Cheat sheet →</a></div>
+    </span>
+    <span class=badge>Available</span>
+  </li>
+  <li class=topic>
+    <span class=topic-num>5</span>
+    <span class=topic-main>
+      <span class=topic-title><a href=/design-thinking-lessons/lessons/0005-data-fetching-architecture.html>Data fetching architecture</a></span>
+      <div class=topic-desc>Added topic — waterfalls, parallel fetching, request memoization. The connective tissue across 1–4.</div>
+      <div class=topic-ref><a href=/design-thinking-lessons/reference/0005-data-fetching-cheatsheet.html>Cheat sheet →</a></div>
+    </span>
+    <span class=badge>Available</span>
+  </li>
+</ol>
+
+<p class=pass-label>Broadening pass — the same five ideas, no frontend required</p>
+<ol class=topic-list>
+  <li class=topic>
+    <span class=topic-num>6</span>
+    <span class=topic-main>
+      <span class=topic-title><a href=/design-thinking-lessons/lessons/0006-coupling-cohesion-general-principle.html>Coupling &amp; cohesion, generally</a></span>
+      <div class=topic-desc>Generalizes Lesson 1 via Ousterhout's deep modules &amp; information hiding — case study in PHP.</div>
+      <div class=topic-ref><a href=/design-thinking-lessons/reference/0006-deep-modules-cheatsheet.html>Cheat sheet →</a></div>
+    </span>
+    <span class=badge>Available</span>
+  </li>
+  <li class=topic>
+    <span class=topic-num>7</span>
+    <span class=topic-main>
+      <span class=topic-title><a href=/design-thinking-lessons/lessons/0007-state-information-architecture-general-principle.html>State as information architecture</a></span>
+      <div class=topic-desc>Generalizes Lesson 2 via database normalization &amp; denormalization — case study in MySQL.</div>
+      <div class=topic-ref><a href=/design-thinking-lessons/reference/0007-information-architecture-cheatsheet.html>Cheat sheet →</a></div>
+    </span>
+    <span class=badge>Available</span>
+  </li>
+  <li class=topic>
+    <span class=topic-num>8</span>
+    <span class=topic-main>
+      <span class=topic-title><a href=/design-thinking-lessons/lessons/0008-tradeoff-analysis-general-principle.html>Tradeoff analysis</a></span>
+      <div class=topic-desc>Generalizes Lesson 3 via the CAP theorem — naming the axes instead of saying "it depends."</div>
+      <div class=topic-ref><a href=/design-thinking-lessons/reference/0008-tradeoff-analysis-cheatsheet.html>Cheat sheet →</a></div>
+    </span>
+    <span class=badge>Available</span>
+  </li>
+  <li class=topic>
+    <span class=topic-num>9</span>
+    <span class=topic-main>
+      <span class=topic-title><a href=/design-thinking-lessons/lessons/0009-essential-accidental-complexity-general-principle.html>Essential vs. accidental complexity</a></span>
+      <div class=topic-desc>Generalizes Lessons 4–5 via Brooks's <em>No Silver Bullet</em> and Knuth on premature optimization. Closes the loop.</div>
+      <div class=topic-ref><a href=/design-thinking-lessons/reference/0009-complexity-cheatsheet.html>Cheat sheet →</a></div>
+    </span>
+    <span class=badge>Available</span>
+  </li>
+</ol>
+
+<h2>Secondary track — process &amp; collaboration</h2>
+<p class=pass-label>Threaded through the primary track's examples, now with lessons of its own</p>
+<ol class=topic-list>
+  <li class=topic>
+    <span class=topic-num>10</span>
+    <span class=topic-main>
+      <span class=topic-title><a href=/design-thinking-lessons/lessons/0010-code-review-practices.html>Code review practices</a></span>
+      <div class=topic-desc>Google's code-review standard — code health over perfection, what to look for, how to say it. Exercise: review a diff cold.</div>
+      <div class=topic-ref><a href=/design-thinking-lessons/reference/0010-code-review-cheatsheet.html>Cheat sheet →</a></div>
+    </span>
+    <span class=badge>Available</span>
+  </li>
+  <li class=topic>
+    <span class=topic-num>11</span>
+    <span class=topic-main>
+      <span class=topic-title><a href=/design-thinking-lessons/lessons/0011-testing-strategy.html>Testing strategy</a></span>
+      <div class=topic-desc>The Testing Trophy, and how Lessons 1–5's architecture choices already decided what's testable.</div>
+      <div class=topic-ref><a href=/design-thinking-lessons/reference/0011-testing-strategy-cheatsheet.html>Cheat sheet →</a></div>
+    </span>
+    <span class=badge>Available</span>
+  </li>
+  <li class=topic>
+    <span class=topic-num>12</span>
+    <span class=topic-main>
+      <span class=topic-title><a href=/design-thinking-lessons/lessons/0012-incident-response-basics.html>Incident response basics</a></span>
+      <div class=topic-desc>Severity, blast radius, blameless postmortems — using Lesson 3's caching bug as a live incident.</div>
+      <div class=topic-ref><a href=/design-thinking-lessons/reference/0012-incident-response-cheatsheet.html>Cheat sheet →</a></div>
+    </span>
+    <span class=badge>Available</span>
+  </li>
+  <li class=topic>
+    <span class=topic-num>13</span>
+    <span class=topic-main>
+      <span class=topic-title><a href=/design-thinking-lessons/lessons/0013-technical-documentation-design-docs.html>Technical documentation / design docs</a></span>
+      <div class=topic-desc>ADRs vs. full design docs. Exercise: write the doc that would have prevented Lesson 12's incident.</div>
+      <div class=topic-ref><a href=/design-thinking-lessons/reference/0013-design-docs-cheatsheet.html>Cheat sheet →</a></div>
+    </span>
+    <span class=badge>Available</span>
+  </li>
+</ol>
+
+<p class=footnote>Primary sources for every claim in this course are cited inline throughout, and collected in <a href=/design-thinking-lessons/RESOURCES.md>Resources</a>.</p>
+
+</main>
+
+

@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Cheat Sheet — Rendering Strategy</title><link rel=stylesheet href=/design-thinking-lessons/design-thinking-lessons.efc71e97.css><style>main{max-width:640px}.term{margin-bottom:1.1rem}.term dt{font-weight:600;font-family:var(--font-mono);font-size:.95rem}.term dd{margin:.2rem 0 0}table{border-collapse:collapse;width:100%;margin:1rem 0 1.4rem;font-size:.9rem}th,td{text-align:left;border-bottom:1px solid var(--color-border);padding:.4rem .6rem}</style><body>
+<main>
+
+<p class=kicker>Reference · From Lesson 0003</p>
+<h1>Rendering Strategy Cheat Sheet</h1>
+
+<h2>Terms</h2>
+<dl>
+  <div class=term>
+    <dt>Server Component</dt>
+    <dd>Default component type in the App Router. Runs only on the server, ships no JS of its own to the browser, can access data sources directly.</dd>
+  </div>
+  <div class=term>
+    <dt>Client Component</dt>
+    <dd>Opt-in via <code>"use client"</code>. Needed the moment a component uses state, effects, or event handlers.</dd>
+  </div>
+  <div class=term>
+    <dt><code>use cache</code></dt>
+    <dd>Directive that caches a function's or component's output. The arguments and closed-over values become part of the cache key — get the key wrong and you leak one caller's data into another's response.</dd>
+  </div>
+  <div class=term>
+    <dt>Streaming</dt>
+    <dd>Sending part of the page immediately (a <code>Suspense</code> fallback) and the rest once it resolves, instead of waiting for everything.</dd>
+  </div>
+  <div class=term>
+    <dt>Partial Prerendering (PPR)</dt>
+    <dd>A route made of a cached static shell plus dynamic Suspense-wrapped holes, both served from the same request. The current default rendering shape.</dd>
+  </div>
+</dl>
+
+<h2>Old term → current mechanism</h2>
+<table>
+  <tr><th>Old per-page mental model<th>Current per-component reality</tr>
+  <tr><td>SSG<td><code>use cache</code> with no per-viewer dependency</tr>
+  <tr><td>ISR<td><code>use cache</code> + <code>cacheLife(...)</code></tr>
+  <tr><td>SSR<td>No cache; reads a runtime API (<code>cookies()</code>, <code>headers()</code>); wrapped in <code>Suspense</code></tr>
+  <tr><td>CSR<td><code>"use client"</code> component fetching its own data</tr>
+</table>
+
+<h2>Primary sources</h2>
+<p><a href=https://nextjs.org/docs/app/getting-started/caching target=_blank rel=noopener>Caching (Cache Components) — Next.js docs</a> · <a href=https://vercel.com/blog/how-to-choose-the-best-rendering-strategy-for-your-app target=_blank rel=noopener>Vercel Blog</a> · <a href=https://react.dev/reference/rsc/server-components target=_blank rel=noopener>react.dev</a></p>
+
+<p><a href=/design-thinking-lessons/lessons/0003-rendering-strategy-ssr-ssg-streaming-rsc.html>← Back to Lesson 3</a></p>
+
+</main>
+
+
