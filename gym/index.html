@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0e0f11">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Gym">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <title>Gym: Hani &amp; Behnam</title>
+</head>
+<body>
+  <header>
+    <div class="row stick">
+      <div class="seg" id="sessions" role="tablist" aria-label="Session"></div>
+      <button id="menuBtn" class="icon" aria-label="Menu">⋯</button>
+    </div>
+    <div class="row">
+      <div class="seg small" id="weeks" role="tablist" aria-label="Week"></div>
+    </div>
+    <p id="focus" class="muted"></p>
+    <p id="weekNote" class="weeknote"></p>
+  </header>
+
+  <main id="main"></main>
+
+  <dialog id="menu">
+    <h2>Data</h2>
+    <button id="exportBtn">Export backup</button>
+    <label class="filebtn">Import backup<input type="file" id="importFile" accept="application/json" hidden></label>
+    <button id="resetBtn" class="danger">Reset this week</button>
+    <button id="closeMenu" class="ghost">Close</button>
+    <p class="credit">Exercise photos: free-exercise-db (public domain).</p>
+  </dialog>
+
+  <dialog id="demo">
+    <h2></h2>
+    <div class="frames"></div>
+    <p class="credit">Tap anywhere to close</p>
+  </dialog>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
