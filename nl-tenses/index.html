@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dutch tenses and time – A2 reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F7FA; --surface:#FFFFFF; --ink:#0F1A2B; --muted:#5A6578; --line:#DDE2EA; --soft:#EEF1F6;
+  --c-now:#1F5FD1;  --t-now:#E7EFFD;
+  --c-perf:#0B8A66; --t-perf:#DFF4EC;
+  --c-past:#B4560A; --t-past:#FBEBDA;
+  --c-fut:#7C3FD0;  --t-fut:#EFE6FB; --bad:#C0392B;
+  --accent:var(--ink);
+  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E141D; --surface:#151D2A; --ink:#E8EDF5; --muted:#98A3B5; --line:#263145; --soft:#1B2536;
+    --c-now:#6E9BFF;  --t-now:#17264A;
+    --c-perf:#4FD1A5; --t-perf:#11332B;
+    --c-past:#F0A15C; --t-past:#3A2610;
+    --c-fut:#B58CFF;  --t-fut:#2A1D45; --bad:#FF8A80;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-text-size-adjust:100%}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--c-now);outline-offset:2px;border-radius:4px}
+
+/* layout */
+.wrap{max-width:1140px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:56px}
+.nav{position:sticky;top:0;align-self:start;padding:32px 0;max-height:100vh;overflow:auto}
+.nav b{display:block;font-family:var(--display);font-size:18px;margin-bottom:14px}
+.nav a{display:flex;align-items:center;gap:10px;padding:7px 10px;margin-left:-10px;border-radius:8px;text-decoration:none;color:var(--muted);font-size:14.5px}
+.nav a i{width:10px;height:10px;border-radius:50%;background:var(--dot,var(--line));flex:none}
+.nav a:hover{background:var(--soft);color:var(--ink)}
+.nav a.on{background:var(--soft);color:var(--ink);font-weight:600}
+main{padding-bottom:96px;min-width:0}
+@media (max-width:959px){
+  .wrap{grid-template-columns:1fr;gap:0;padding:0 18px}
+  .nav{display:flex;gap:4px;overflow-x:auto;padding:10px 18px;margin:0 -18px;background:var(--bg);border-bottom:1px solid var(--line);z-index:5;max-height:none;white-space:nowrap;scrollbar-width:none}
+  .nav b{display:none}
+  .nav a{margin:0;flex:none;padding:7px 12px}
+  section{scroll-margin-top:64px}
+}
+
+/* hero */
+.hero{padding:56px 0 40px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,6vw,56px);line-height:1.04;letter-spacing:-0.02em;margin:0 0 14px}
+.lead{font-size:18px;color:var(--muted);max-width:56ch;margin:0 0 40px}
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;position:relative;padding-top:30px}
+.timeline::before{content:"";position:absolute;top:9px;left:0;right:0;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--c-past),var(--c-perf),var(--c-now),var(--c-fut))}
+.node{position:relative;display:block;text-decoration:none;padding:14px 16px 16px;border-radius:12px;background:var(--surface);border:1px solid var(--line);transition:border-color .15s, transform .15s}
+.node::before{content:"";position:absolute;top:-30px;left:14px;width:22px;height:22px;border-radius:50%;background:var(--surface);border:5px solid var(--accent)}
+.node:hover{border-color:var(--accent);transform:translateY(-2px)}
+.node small{display:block;color:var(--muted);font-size:13px}
+.node strong{display:block;font-family:var(--display);font-size:20px;color:var(--accent);margin:2px 0 6px}
+.node em{display:block;font-style:normal;font-weight:600;margin-bottom:6px}
+.node.imp{--accent:var(--c-past)} .node.perf{--accent:var(--c-perf)} .node.now{--accent:var(--c-now)} .node.fut{--accent:var(--c-fut)}
+@media (max-width:820px){
+  .timeline{grid-template-columns:1fr 1fr;padding-top:0}
+  .timeline::before,.node::before{display:none}
+  .node{border-left:5px solid var(--accent)}
+}
+@media (max-width:480px){.timeline{grid-template-columns:1fr}}
+
+/* sections */
+section{padding:56px 0 8px;border-top:1px solid var(--line)}
+section[data-t="imp"]{--accent:var(--c-past);--tint:var(--t-past)}
+section[data-t="perf"]{--accent:var(--c-perf);--tint:var(--t-perf)}
+section[data-t="now"]{--accent:var(--c-now);--tint:var(--t-now)}
+section[data-t="fut"]{--accent:var(--c-fut);--tint:var(--t-fut)}
+section[data-t="neutral"]{--accent:var(--ink);--tint:var(--soft)}
+h2{font-family:var(--display);font-size:clamp(26px,4vw,34px);line-height:1.1;letter-spacing:-0.01em;margin:0 0 6px;display:flex;align-items:center;gap:12px}
+h2::before{content:"";width:14px;height:14px;border-radius:50%;background:var(--accent);flex:none}
+.sub{color:var(--muted);margin:0 0 24px}
+h3{font-family:var(--display);font-size:20px;margin:36px 0 10px}
+p{margin:0 0 12px;max-width:68ch}
+.end{color:var(--accent);font-weight:700}
+.nl{font-weight:600}
+.v{color:var(--accent);font-weight:700}
+
+.formula{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 20px;font-weight:600}
+.formula span{padding:8px 14px;border-radius:10px;background:var(--tint);color:var(--accent)}
+.formula i{font-style:normal;color:var(--muted)}
+
+.ex{margin:0 0 18px;padding-left:14px;border-left:3px solid var(--accent)}
+.ex .nl{display:block;font-size:17px}
+.ex small{color:var(--muted);font-size:14px}
+.exs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:4px 28px}
+.grp{font-weight:700;color:var(--accent);margin:22px 0 10px}
+.which small{display:block;color:var(--muted);font-size:14px}
+.story{background:var(--tint);border-radius:12px;padding:16px 20px;margin:18px 0;max-width:68ch}
+.story .nl{font-size:17px;display:block;margin-bottom:6px}
+.story small{color:var(--muted)}
+.cheat{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin:0 0 14px}
+.cc{background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--accent);border-radius:12px;padding:14px 18px 16px}
+.cc h3{margin:0 0 2px;font-size:21px;color:var(--accent)}
+.cc .f{font-weight:700;margin:0 0 8px;max-width:none}
+.cc ul{margin:0;padding-left:18px;font-size:15px}
+.cc li{margin:4px 0}
+.cc.now{--accent:var(--c-now)} .cc.perf{--accent:var(--c-perf)} .cc.imp{--accent:var(--c-past)} .cc.fut{--accent:var(--c-fut)}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.strip > div{background:var(--soft);border-radius:12px;padding:12px 16px;font-size:15px}
+.strip b{display:block;margin-bottom:4px}
+.bad{color:var(--bad);text-decoration:line-through}
+.good{color:var(--c-perf);font-weight:600}
+@media print{
+  :root:not([data-theme="light"]){--bg:#fff;--surface:#fff;--ink:#0F1A2B;--muted:#5A6578;--line:#DDE2EA;--soft:#EEF1F6;--c-now:#1F5FD1;--t-now:#E7EFFD;--c-perf:#0B8A66;--t-perf:#DFF4EC;--c-past:#B4560A;--t-past:#FBEBDA;--c-fut:#7C3FD0;--t-fut:#EFE6FB;color-scheme:light}
+  body.print-cheat .nav, body.print-cheat .hero, body.print-cheat section:not(#cheat), body.print-cheat .noprint{display:none!important}
+  body.print-cheat .wrap{display:block;padding:0}
+  body.print-cheat #cheat{border:0;padding:0}
+  body.print-cheat .cc, body.print-cheat .strip > div{break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body.print-cheat .cheat{grid-template-columns:1fr 1fr}
+}
+
+.note{background:var(--tint);border-radius:10px;padding:12px 16px;margin:16px 0;max-width:72ch;font-size:15.5px}
+.note b{color:var(--accent)}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}
+.pills span{font-weight:700;min-width:38px;text-align:center;padding:5px 12px;border-radius:999px;background:var(--tint);color:var(--accent)}
+
+.tw{overflow-x:auto;margin:8px 0 20px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15.5px}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:600;color:var(--muted);font-size:14px;background:var(--soft)}
+tr:last-child td{border-bottom:0}
+td.wrapok{white-space:normal;min-width:180px}
+td.dim{color:var(--muted)}
+
+.which{display:grid;gap:10px}
+.which div{display:grid;grid-template-columns:minmax(0,1.2fr) auto minmax(0,1.4fr);gap:8px 16px;align-items:center;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.chip{display:inline-block;padding:3px 12px;border-radius:999px;font-weight:700;font-size:14px;white-space:nowrap}
+.chip.now{background:var(--t-now);color:var(--c-now)} .chip.perf{background:var(--t-perf);color:var(--c-perf)}
+.chip.imp{background:var(--t-past);color:var(--c-past)} .chip.fut{background:var(--t-fut);color:var(--c-fut)}
+@media (max-width:640px){.which div{grid-template-columns:1fr}}
+
+.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;gap:10px;max-width:72ch}
+.steps li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start}
+.steps li::before{content:counter(s);width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--bg);font-weight:700;display:grid;place-items:center;font-family:var(--display)}
+.steps b{display:block}
+
+.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.three > div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.three h4{margin:0 0 8px;font-family:var(--display);font-size:17px;color:var(--c-now)}
+.three .tag{display:inline-block;font-size:13px;color:var(--muted);margin-bottom:6px}
+
+/* controls */
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0 12px}
+input[type=search]{flex:1 1 200px;min-width:0;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit}
+button{font:inherit;cursor:pointer;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:600}
+button:hover{border-color:var(--ink)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.verbs td.a{transition:filter .15s}
+.verbs.test td.a:not(.shown){filter:blur(7px);cursor:pointer;user-select:none}
+.verbs td small{color:var(--muted)}
+.hint{color:var(--muted);font-size:14px;margin:0 0 8px}
+
+.drill{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px;max-width:640px}
+.drill .q{font-family:var(--display);font-size:clamp(30px,6vw,44px);line-height:1.1;margin:0}
+.drill .en{color:var(--muted);margin:2px 0 18px}
+.drill .ans{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:0 0 18px;min-height:64px}
+.drill .ans div{background:var(--soft);border-radius:10px;padding:10px 12px}
+.drill .ans small{display:block;color:var(--muted);font-size:13px}
+.drill .ans b{font-size:18px}
+.drill .meta{color:var(--muted);font-size:14px;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="nav" aria-label="Sections">
+  <b>Dutch A2</b>
+  <a href="#cheat" style="--dot:var(--ink)"><i></i>Cheatsheet</a>
+  <a href="#start" style="--dot:var(--ink)"><i></i>Start here</a>
+  <a href="#which" style="--dot:var(--ink)"><i></i>Which tense?</a>
+  <a href="#present" style="--dot:var(--c-now)"><i></i>Present</a>
+  <a href="#perfectum" style="--dot:var(--c-perf)"><i></i>Perfectum</a>
+  <a href="#imperfectum" style="--dot:var(--c-past)"><i></i>Imperfectum</a>
+  <a href="#future" style="--dot:var(--c-fut)"><i></i>Future</a>
+  <a href="#order" style="--dot:var(--ink)"><i></i>Word order</a>
+  <a href="#time" style="--dot:var(--ink)"><i></i>Time words &amp; clock</a>
+  <a href="#mistakes" style="--dot:var(--ink)"><i></i>Common mistakes</a>
+  <a href="#verbs" style="--dot:var(--ink)"><i></i>Verb bank</a>
+  <a href="#drill" style="--dot:var(--ink)"><i></i>Drill</a>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Dutch tenses at A2</h1>
+  <p class="lead">Four ways to talk about time. In conversation you mostly need the present and the perfectum; the imperfectum is for stories, writing and a handful of common verbs.</p>
+  <div class="timeline">
+    <a class="node imp" href="#imperfectum"><small>Earlier</small><strong>Imperfectum</strong><em>Ik werkte.</em><small>Stories, writing, was / had / kon</small></a>
+    <a class="node perf" href="#perfectum"><small>Earlier</small><strong>Perfectum</strong><em>Ik heb gewerkt.</em><small>Finished action, spoken past</small></a>
+    <a class="node now" href="#present"><small>Now</small><strong>Present</strong><em>Ik werk.</em><small>Facts, habits, plans</small></a>
+    <a class="node fut" href="#future"><small>Later</small><strong>Future</strong><em>Ik ga werken.</em><small>gaan + infinitive</small></a>
+  </div>
+</header>
+
+<section id="cheat" data-t="neutral" style="border-top:0;padding-top:24px">
+  <h2>Cheatsheet</h2>
+  <p class="sub">Everything on one screen. Details are in the sections below.</p>
+  <div class="bar noprint"><button id="printBtn" type="button">Print this page</button></div>
+  <div class="cheat">
+    <div class="cc now">
+      <h3>Present</h3>
+      <p class="f">stem + t (jij, u, hij) · stem + en (wij, jullie, zij)</p>
+      <ul>
+        <li>Stem = infinitive minus -en: maken → maak, leven → leef, reizen → reis</li>
+        <li><span class="nl">ik werk · jij werk<span class="end">t</span> · wij werk<span class="end">en</span></span></li>
+        <li>Question with jij/je: no -t → <span class="nl">Werk je?</span></li>
+        <li><b>zijn</b> ben · bent · is · zijn</li>
+        <li><b>hebben</b> heb · hebt · heeft · hebben</li>
+        <li><b>gaan</b> ga · gaat · gaat · gaan</li>
+        <li>Modals kan · wil · moet · mag · zal: the 2nd verb is an infinitive at the end</li>
+      </ul>
+    </div>
+    <div class="cc perf">
+      <h3>Perfectum</h3>
+      <p class="f">hebben / zijn + participle (last)</p>
+      <ul>
+        <li><span class="nl">Ik heb gewerkt. Ik ben gegaan.</span></li>
+        <li>Regular: ge- + stem + <b>t</b> or <b>d</b>. Check the last letter of the infinitive minus -en: <b>t k f s ch p</b> → t, otherwise d</li>
+        <li>Strong: ge- + changed stem + -en: gegeten, gelopen</li>
+        <li><b>zijn</b> = movement to a place, change of state, zijn/blijven. Everything else: <b>hebben</b></li>
+        <li>No ge- after be-, ver-, ont-, her-, ge-: betaald, verteld</li>
+        <li>Separable: ge- in the middle: opgestaan, meegenomen</li>
+      </ul>
+    </div>
+    <div class="cc imp">
+      <h3>Imperfectum</h3>
+      <p class="f">stem + te / de (singular) · ten / den (plural)</p>
+      <ul>
+        <li>kofschip letter → te/ten, otherwise de/den</li>
+        <li><span class="nl">ik werk<span class="end">te</span> · wij werk<span class="end">ten</span></span> (ik, jij, hij: same form)</li>
+        <li>Speaking: use it for <b>was · had · kon · wilde · moest · mocht · zou</b></li>
+        <li>Writing and stories: use it for all verbs</li>
+        <li>Strong verbs change vowel: ging, at, kwam, zag (see verb bank)</li>
+      </ul>
+    </div>
+    <div class="cc fut">
+      <h3>Future</h3>
+      <p class="f">gaan + infinitive</p>
+      <ul>
+        <li><span class="nl">Ik ga morgen werken.</span></li>
+        <li>Present + time word: <span class="nl">Morgen werk ik.</span></li>
+        <li><b>zullen</b> for offers and promises: <span class="nl">Zal ik helpen? Ik zal bellen.</span></li>
+        <li><span class="nl">Zullen we …?</span> = Shall we …?</li>
+      </ul>
+    </div>
+  </div>
+  <div class="strip">
+    <div><b>Which past?</b>Speaking about a finished action → perfectum. Writing, stories, or was/had/kon… → imperfectum.</div>
+    <div><b>Word order</b>1. Verb is 2nd: <i>Gisteren heb ik gewerkt.</i><br>2. Extra verbs go last: <i>Ik wil werken.</i><br>3. After omdat / dat / als: verb last: <i>omdat ik moe ben.</i></div>
+    <div><b>Time words</b>Before now: gisteren, vorige week, net<br>Now: nu, vandaag<br>Later: morgen, straks, volgende week</div>
+    <div><b>Clock</b>half = 30 minutes before the next hour.<br>half vier = 3:30 · kwart over drie = 3:15 · kwart voor vier = 3:45</div>
+  </div>
+</section>
+
+<section id="start" data-t="neutral">
+  <h2>Start here</h2>
+  <p class="sub">Learn in this order. Each step unlocks real sentences.</p>
+  <ol class="steps">
+    <li><div><b>Present of zijn, hebben, gaan</b>ik ben, ik heb, ik ga. Then the regular pattern: stem + t.</div></li>
+    <li><div><b>Modal verbs</b>kunnen, willen, moeten, mogen, zullen. They push the second verb to the end.</div></li>
+    <li><div><b>Perfectum formula</b>hebben or zijn + participle (ge-…-t/d). This is your everyday past.</div></li>
+    <li><div><b>Imperfectum of 7 verbs</b>was, had, kon, wilde, moest, mocht, zou.</div></li>
+    <li><div><b>The rest</b>Future with gaan, the verb bank, then clock times.</div></li>
+  </ol>
+</section>
+
+<section id="which" data-t="neutral">
+  <h2>Which tense do I use?</h2>
+  <p class="sub">Find your situation, copy the pattern.</p>
+  <div class="which">
+    <div><span>True now, or a habit</span><span class="chip now">Present</span><span><span class="nl">Ik werk in Utrecht.</span><small>I work in Utrecht.</small><span class="nl">Ik drink elke dag koffie.</span><small>I drink coffee every day.</small></span></div>
+    <div><span>Planned, with a time word</span><span class="chip now">Present</span><span><span class="nl">Morgen werk ik niet.</span><small>I’m not working tomorrow.</small><span class="nl">De trein vertrekt om negen uur.</span><small>The train leaves at nine.</small></span></div>
+    <div><span>Going to do it</span><span class="chip fut">gaan + infinitive</span><span><span class="nl">Ik ga morgen koken.</span><small>I’m going to cook tomorrow.</small><span class="nl">Het gaat regenen.</span><small>It’s going to rain.</small></span></div>
+    <div><span>Finished action, speaking or texting</span><span class="chip perf">Perfectum</span><span><span class="nl">Ik heb gisteren gekookt.</span><small>I cooked yesterday.</small><span class="nl">Ze is naar huis gegaan.</span><small>She went home.</small></span></div>
+    <div><span>Telling a story, or writing</span><span class="chip imp">Imperfectum</span><span><span class="nl">Hij opende de deur.</span><small>He opened the door.</small><span class="nl">Het regende de hele dag.</span><small>It rained all day.</small></span></div>
+    <div><span>was, had, kon, wilde, moest, mocht, zou</span><span class="chip imp">Imperfectum</span><span><span class="nl">Ik had honger.</span><small>I was hungry.</small><span class="nl">Hij kon niet komen.</span><small>He couldn’t come.</small></span></div>
+  </div>
+</section>
+
+<!-- PRESENT -->
+<section id="present" data-t="now">
+  <h2>Present</h2>
+  <p class="sub">Onvoltooid tegenwoordige tijd (OTT)</p>
+  <div class="formula"><span>stem</span><i>+</i><span>ending</span></div>
+  <p>Stem = infinitive minus <b>-en</b> (werken → werk).</p>
+
+  <div class="tw"><table>
+    <tr><th>Subject</th><th>Ending</th><th>werken</th></tr>
+    <tr><td>ik</td><td class="dim">–</td><td>ik werk</td></tr>
+    <tr><td>jij / je</td><td><span class="end">-t</span></td><td>jij werk<span class="end">t</span></td></tr>
+    <tr><td>u</td><td><span class="end">-t</span></td><td>u werk<span class="end">t</span></td></tr>
+    <tr><td>hij / zij / het</td><td><span class="end">-t</span></td><td>hij werk<span class="end">t</span></td></tr>
+    <tr><td>wij / we</td><td><span class="end">-en</span></td><td>wij werk<span class="end">en</span></td></tr>
+    <tr><td>jullie</td><td><span class="end">-en</span></td><td>jullie werk<span class="end">en</span></td></tr>
+    <tr><td>zij / ze (they)</td><td><span class="end">-en</span></td><td>zij werk<span class="end">en</span></td></tr>
+  </table></div>
+
+  <div class="note"><b>Inversion:</b> after the verb, <i>jij/je</i> loses the -t: <span class="nl">Werk je?</span> <span class="nl">Werk jij?</span> But <span class="nl">Werkt u?</span> keeps it.</div>
+
+  <h3>Spelling the stem</h3>
+  <div class="tw"><table>
+    <tr><th>Infinitive</th><th>Stem</th><th>Why</th></tr>
+    <tr><td>maken, eten, lopen, wonen</td><td>maak, eet, loop, woon</td><td class="wrapok">Long vowel: the single vowel doubles when the final -en goes.</td></tr>
+    <tr><td>stoppen, zitten</td><td>stop, zit</td><td class="wrapok">Double consonant becomes single.</td></tr>
+    <tr><td>leven, reizen</td><td>leef, reis</td><td class="wrapok">v → f, z → s at the end of a word.</td></tr>
+    <tr><td>praten, heten</td><td>praat, heet</td><td class="wrapok">Stem already ends in t, so no extra: <span class="nl">hij praat</span>.</td></tr>
+  </table></div>
+
+  <h3>Irregular verbs to memorize</h3>
+  <div class="tw"><table>
+    <tr><th>Infinitive</th><th>ik</th><th>jij / u</th><th>hij / zij / het</th><th>wij / jullie / zij</th></tr>
+    <tr><td><b>zijn</b> to be</td><td>ben</td><td>bent</td><td>is</td><td>zijn</td></tr>
+    <tr><td><b>hebben</b> to have</td><td>heb</td><td>hebt</td><td>heeft</td><td>hebben</td></tr>
+    <tr><td><b>gaan</b> to go</td><td>ga</td><td>gaat</td><td>gaat</td><td>gaan</td></tr>
+    <tr><td><b>doen</b> to do</td><td>doe</td><td>doet</td><td>doet</td><td>doen</td></tr>
+    <tr><td><b>kunnen</b> can</td><td>kan</td><td>kunt / kan</td><td>kan</td><td>kunnen</td></tr>
+    <tr><td><b>willen</b> want</td><td>wil</td><td>wilt / wil</td><td>wil</td><td>willen</td></tr>
+    <tr><td><b>moeten</b> must</td><td>moet</td><td>moet</td><td>moet</td><td>moeten</td></tr>
+    <tr><td><b>mogen</b> may</td><td>mag</td><td>mag</td><td>mag</td><td>mogen</td></tr>
+    <tr><td><b>zullen</b> shall</td><td>zal</td><td>zult / zal</td><td>zal</td><td>zullen</td></tr>
+  </table></div>
+  <p class="hint">After <i>jij/je</i> in questions use the short form: <i>Heb je…? Kun je…? Wil je…?</i></p>
+
+  <h3>More examples</h3>
+  <p class="grp">Regular verbs: stem + t</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik <span class="v">woon</span> in Rotterdam.</span><small>I live in Rotterdam.</small></div>
+    <div class="ex"><span class="nl">Zij <span class="v">werkt</span> bij een bank.</span><small>She works at a bank.</small></div>
+    <div class="ex"><span class="nl">Hij <span class="v">fietst</span> elke dag naar zijn werk.</span><small>He cycles to work every day.</small></div>
+    <div class="ex"><span class="nl">Wij <span class="v">eten</span> om zes uur.</span><small>We eat at six.</small></div>
+    <div class="ex"><span class="nl">Jij <span class="v">spreekt</span> goed Nederlands.</span><small>You speak Dutch well.</small></div>
+    <div class="ex"><span class="nl">Ze <span class="v">luisteren</span> naar muziek.</span><small>They listen to music.</small></div>
+    <div class="ex"><span class="nl"><span class="v">Werk</span> jij morgen?</span><small>Are you working tomorrow? (no -t after jij)</small></div>
+    <div class="ex"><span class="nl"><span class="v">Woont</span> u hier?</span><small>Do you live here? (formal, keeps -t)</small></div>
+  </div>
+  <p class="grp">Irregular verbs</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik <span class="v">ben</span> moe.</span><small>I am tired.</small></div>
+    <div class="ex"><span class="nl">Zij <span class="v">heeft</span> een broer en een zus.</span><small>She has a brother and a sister.</small></div>
+    <div class="ex"><span class="nl">Wij <span class="v">gaan</span> naar de markt.</span><small>We are going to the market.</small></div>
+    <div class="ex"><span class="nl">Wat <span class="v">doe</span> je vanavond?</span><small>What are you doing tonight?</small></div>
+    <div class="ex"><span class="nl">Ze <span class="v">zijn</span> thuis.</span><small>They are at home.</small></div>
+    <div class="ex"><span class="nl"><span class="v">Heb</span> je tijd?</span><small>Do you have time?</small></div>
+  </div>
+  <p class="grp">Modal verbs</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik <span class="v">kan</span> goed <span class="v">zwemmen</span>.</span><small>I can swim well.</small></div>
+    <div class="ex"><span class="nl"><span class="v">Kun</span> je me <span class="v">helpen</span>?</span><small>Can you help me?</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">wil</span> een kopje koffie <span class="v">drinken</span>.</span><small>I want to drink a cup of coffee.</small></div>
+    <div class="ex"><span class="nl">Je <span class="v">moet</span> nu <span class="v">gaan</span>.</span><small>You have to go now.</small></div>
+    <div class="ex"><span class="nl">Hier <span class="v">mag</span> je niet <span class="v">roken</span>.</span><small>You may not smoke here.</small></div>
+    <div class="ex"><span class="nl"><span class="v">Zal</span> ik de deur <span class="v">openen</span>?</span><small>Shall I open the door? (offer)</small></div>
+    <div class="ex"><span class="nl"><span class="v">Zullen</span> we <span class="v">beginnen</span>?</span><small>Shall we start? (suggestion)</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">zal</span> het <span class="v">doen</span>.</span><small>I’ll do it. (promise)</small></div>
+  </div>
+  <p class="grp">Separable verbs</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Hij <span class="v">belt</span> zijn moeder <span class="v">op</span>.</span><small>He calls his mother.</small></div>
+    <div class="ex"><span class="nl">De winkel <span class="v">gaat</span> om negen uur <span class="v">open</span>.</span><small>The shop opens at nine.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">neem</span> mijn jas <span class="v">mee</span>.</span><small>I take my coat along.</small></div>
+    <div class="ex"><span class="nl">Zij <span class="v">komt</span> morgen <span class="v">terug</span>.</span><small>She comes back tomorrow.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">maak</span> het huis <span class="v">schoon</span>.</span><small>I clean the house.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">moet</span> mijn moeder <span class="v">opbellen</span>.</span><small>I have to call my mother. (infinitive stays whole)</small></div>
+  </div>
+
+  <h3>Useful extras</h3>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik <span class="v">moet</span> vandaag <span class="v">werken</span>.</span><small>Modal 2nd, infinitive last.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">sta</span> om zeven uur <span class="v">op</span>.</span><small>Separable verb: opstaan splits.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">ben</span> aan het <span class="v">koken</span>.</span><small>aan het + infinitive = busy doing it now.</small></div>
+  </div>
+</section>
+
+<!-- PERFECTUM -->
+<section id="perfectum" data-t="perf">
+  <h2>Perfectum</h2>
+  <p class="sub">Voltooid tegenwoordige tijd (VTT) · your everyday spoken past</p>
+  <div class="formula"><span>hebben / zijn</span><i>+ …</i><span>participle (last)</span></div>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik <span class="v">heb</span> gisteren hard <span class="v">gewerkt</span>.</span><small>I worked hard yesterday.</small></div>
+    <div class="ex"><span class="nl">Wij <span class="v">zijn</span> naar Amsterdam <span class="v">gegaan</span>.</span><small>We went to Amsterdam.</small></div>
+    <div class="ex"><span class="nl">Hij <span class="v">is</span> laat <span class="v">opgestaan</span>.</span><small>He got up late.</small></div>
+  </div>
+
+  <h3>1 · Build the participle</h3>
+  <p><b>Regular (weak) verbs:</b> <span class="nl">ge- + stem + -t or -d</span>. <b>Irregular (strong) verbs:</b> <span class="nl">ge- + changed stem + -en</span> (gegeten, gelopen, gegaan). Learn the strong ones from the verb bank.</p>
+  <p>To choose <b>t or d</b>, take the infinitive without -en and look at the last letter. If it is in <b>’t kofschip</b>, add -t. Otherwise add -d.</p>
+  <div class="pills" aria-label="’t kofschip letters"><span>t</span><span>k</span><span>f</span><span>s</span><span>ch</span><span>p</span></div>
+  <div class="tw"><table>
+    <tr><th>Infinitive</th><th>Minus -en</th><th>Last letter</th><th>Participle</th></tr>
+    <tr><td>werken</td><td>werk</td><td>k → in kofschip</td><td>ge<span class="v">werkt</span></td></tr>
+    <tr><td>maken</td><td>mak</td><td>k → in kofschip</td><td>ge<span class="v">maakt</span></td></tr>
+    <tr><td>wonen</td><td>won</td><td>n → not in kofschip</td><td>ge<span class="v">woond</span></td></tr>
+    <tr><td>leven</td><td>lev</td><td>v → not in kofschip</td><td>ge<span class="v">leefd</span></td></tr>
+    <tr><td>reizen</td><td>reiz</td><td>z → not in kofschip</td><td>ge<span class="v">reisd</span></td></tr>
+    <tr><td>praten</td><td>prat</td><td>t → already there</td><td>ge<span class="v">praat</span></td></tr>
+  </table></div>
+
+  <h3>2 · Skip ge- when…</h3>
+  <p>The verb starts with <b>be-, ge-, her-, ont-, ver-</b>: betalen → <span class="nl">betaald</span>, bestellen → <span class="nl">besteld</span>, vertellen → <span class="nl">verteld</span>, ontmoeten → <span class="nl">ontmoet</span>, beginnen → <span class="nl">begonnen</span>, vergeten → <span class="nl">vergeten</span>.</p>
+  <p><b>Separable verbs</b> put ge- in the middle: opstaan → <span class="nl">opgestaan</span>, meenemen → <span class="nl">meegenomen</span>, aankomen → <span class="nl">aangekomen</span>, schoonmaken → <span class="nl">schoongemaakt</span>.</p>
+
+  <h3>3 · Choose hebben or zijn</h3>
+  <div class="three" style="--c-now:var(--c-perf)">
+    <div><h4>Use zijn</h4><span class="tag">You end up somewhere else</span><br><span class="nl">Ik ben naar huis gegaan.</span><br><span class="nl">Ze zijn gekomen.</span></div>
+    <div><h4>Use zijn</h4><span class="tag">Something changes, or being/staying</span><br><span class="nl">Hij is ziek geworden.</span><br><span class="nl">Ik ben gebleven. Ik ben geweest.</span></div>
+    <div><h4>Use hebben</h4><span class="tag">Everything else</span><br><span class="nl">Ik heb gegeten.</span><br><span class="nl">Ik heb gisteren gelopen.</span> <small>(activity, no destination)</small></div>
+  </div>
+  <div class="note"><b>Same verb, two auxiliaries:</b> <span class="nl">Ik heb gefietst.</span> (cycled, as an activity) vs <span class="nl">Ik ben naar school gefietst.</span> (cycled to a destination).</div>
+  <div class="note"><b>Modals + another verb:</b> use the infinitive, not a participle. <span class="nl">Ik heb moeten werken.</span> <span class="nl">Ik heb niet kunnen komen.</span></div>
+
+  <h3>More examples</h3>
+  <p class="grp">Regular verbs with hebben</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik <span class="v">heb</span> gisteren <span class="v">gekookt</span>.</span><small>I cooked yesterday.</small></div>
+    <div class="ex"><span class="nl">Zij <span class="v">heeft</span> de hele dag <span class="v">gewerkt</span>.</span><small>She worked all day.</small></div>
+    <div class="ex"><span class="nl">Wij <span class="v">hebben</span> in Utrecht <span class="v">gewoond</span>.</span><small>We lived in Utrecht.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">heb</span> naar muziek <span class="v">geluisterd</span>.</span><small>I listened to music.</small></div>
+    <div class="ex"><span class="nl">Ze <span class="v">hebben</span> de hele avond <span class="v">gepraat</span>.</span><small>They talked all evening.</small></div>
+  </div>
+  <p class="grp">Strong verbs with hebben</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik <span class="v">heb</span> een boek <span class="v">gelezen</span>.</span><small>I read a book.</small></div>
+    <div class="ex"><span class="nl">Hij <span class="v">heeft</span> twee koppen koffie <span class="v">gedronken</span>.</span><small>He drank two cups of coffee.</small></div>
+    <div class="ex"><span class="nl"><span class="v">Heb</span> je al <span class="v">gegeten</span>?</span><small>Have you eaten yet?</small></div>
+    <div class="ex"><span class="nl">Wat <span class="v">heb</span> je gisteren <span class="v">gedaan</span>?</span><small>What did you do yesterday?</small></div>
+    <div class="ex"><span class="nl">Wij <span class="v">hebben</span> een film <span class="v">gezien</span>.</span><small>We saw a film.</small></div>
+  </div>
+  <p class="grp">Verbs with zijn</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik <span class="v">ben</span> gisteren in Parijs <span class="v">geweest</span>.</span><small>I was in Paris yesterday.</small></div>
+    <div class="ex"><span class="nl">Ze <span class="v">is</span> om acht uur <span class="v">aangekomen</span>.</span><small>She arrived at eight.</small></div>
+    <div class="ex"><span class="nl">Hij <span class="v">is</span> ziek <span class="v">geworden</span>.</span><small>He got sick.</small></div>
+    <div class="ex"><span class="nl">Wij <span class="v">zijn</span> drie weken <span class="v">gebleven</span>.</span><small>We stayed three weeks.</small></div>
+    <div class="ex"><span class="nl">De trein <span class="v">is</span> al <span class="v">vertrokken</span>.</span><small>The train has already left.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">ben</span> vanochtend vroeg <span class="v">opgestaan</span>.</span><small>I got up early this morning.</small></div>
+  </div>
+  <p class="grp">No ge- (be-, ver-, ont-…)</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik <span class="v">heb</span> de rekening <span class="v">betaald</span>.</span><small>I paid the bill.</small></div>
+    <div class="ex"><span class="nl">Wij <span class="v">hebben</span> pizza <span class="v">besteld</span>.</span><small>We ordered pizza.</small></div>
+    <div class="ex"><span class="nl">Zij <span class="v">heeft</span> me alles <span class="v">verteld</span>.</span><small>She told me everything.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">heb</span> hem gisteren <span class="v">ontmoet</span>.</span><small>I met him yesterday.</small></div>
+    <div class="ex"><span class="nl">Hij <span class="v">heeft</span> het huis <span class="v">verkocht</span>.</span><small>He sold the house.</small></div>
+  </div>
+  <p class="grp">Separable verbs (ge- in the middle)</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Hij <span class="v">heeft</span> zijn moeder <span class="v">opgebeld</span>.</span><small>He called his mother.</small></div>
+    <div class="ex"><span class="nl">We <span class="v">hebben</span> veel <span class="v">meegenomen</span>.</span><small>We brought a lot along.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">heb</span> het huis <span class="v">schoongemaakt</span>.</span><small>I cleaned the house.</small></div>
+  </div>
+  <p class="grp">Questions and negation</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik <span class="v">heb</span> niet <span class="v">gewerkt</span>.</span><small>I didn’t work. (niet goes before the participle)</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">heb</span> het boek niet <span class="v">gelezen</span>.</span><small>I haven’t read the book.</small></div>
+    <div class="ex"><span class="nl"><span class="v">Ben</span> je al in Amsterdam <span class="v">geweest</span>?</span><small>Have you been to Amsterdam yet?</small></div>
+    <div class="ex"><span class="nl">Nee, ik <span class="v">ben</span> er nog nooit <span class="v">geweest</span>.</span><small>No, I’ve never been there.</small></div>
+  </div>
+
+  <p><b>Time words:</b> gisteren, vorige week, vanochtend, net, al (already), nog niet (not yet), nooit (never).</p>
+</section>
+
+<!-- IMPERFECTUM -->
+<section id="imperfectum" data-t="imp">
+  <h2>Imperfectum</h2>
+  <p class="sub">Onvoltooid verleden tijd (OVT) · simple past</p>
+  <div class="formula"><span>stem</span><i>+</i><span>-te / -de</span><i>(plural: -ten / -den)</i></div>
+  <p>Use ’t kofschip on the infinitive minus -en, just like the participle: kofschip letter → <b>-te/-ten</b>, anything else → <b>-de/-den</b>.</p>
+  <div class="tw"><table>
+    <tr><th>Infinitive</th><th>Minus -en</th><th>ik / jij / hij</th><th>wij / jullie / zij</th></tr>
+    <tr><td>werken</td><td>werk</td><td>werk<span class="end">te</span></td><td>werk<span class="end">ten</span></td></tr>
+    <tr><td>maken</td><td>mak</td><td>maak<span class="end">te</span></td><td>maak<span class="end">ten</span></td></tr>
+    <tr><td>praten</td><td>prat</td><td>praat<span class="end">te</span></td><td>praat<span class="end">ten</span></td></tr>
+    <tr><td>wonen</td><td>won</td><td>woon<span class="end">de</span></td><td>woon<span class="end">den</span></td></tr>
+    <tr><td>leven</td><td>lev</td><td>leef<span class="end">de</span></td><td>leef<span class="end">den</span></td></tr>
+    <tr><td>reizen</td><td>reiz</td><td>reis<span class="end">de</span></td><td>reis<span class="end">den</span></td></tr>
+  </table></div>
+  <div class="note"><b>One form for all singular subjects.</b> ik, jij, u, hij all take the same verb: <span class="nl">ik werkte, jij werkte, hij werkte</span>.</div>
+
+  <h3>When to use it</h3>
+  <div class="exs">
+    <div class="ex"><span class="nl">Hij <span class="v">opende</span> de deur en <span class="v">liep</span> naar binnen.</span><small>Stories, news, books.</small></div>
+    <div class="ex"><span class="nl">Vroeger <span class="v">woonden</span> we in Utrecht.</span><small>Background or past habits.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">had</span> honger en ik <span class="v">moest</span> werken.</span><small>Spoken Dutch too, with the verbs below.</small></div>
+  </div>
+
+  <h3>The 7 you need in conversation</h3>
+  <div class="tw"><table>
+    <tr><th>Infinitive</th><th>Singular</th><th>Plural</th></tr>
+    <tr><td>zijn</td><td><b>was</b></td><td>waren</td></tr>
+    <tr><td>hebben</td><td><b>had</b></td><td>hadden</td></tr>
+    <tr><td>kunnen</td><td><b>kon</b></td><td>konden</td></tr>
+    <tr><td>willen</td><td><b>wilde</b></td><td>wilden</td></tr>
+    <tr><td>moeten</td><td><b>moest</b></td><td>moesten</td></tr>
+    <tr><td>mogen</td><td><b>mocht</b></td><td>mochten</td></tr>
+    <tr><td>zullen</td><td><b>zou</b></td><td>zouden</td></tr>
+  </table></div>
+  <p>Strong verbs change vowel (gaan → ging, lopen → liep) and the plural often has a longer vowel (nam → namen, at → aten, zag → zagen). All of them are in the <a href="#verbs">verb bank</a>.</p>
+
+  <h3>More examples</h3>
+  <p class="grp">Regular verbs</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik <span class="v">werkte</span> in een restaurant.</span><small>I worked in a restaurant.</small></div>
+    <div class="ex"><span class="nl">Hij <span class="v">woonde</span> in Brussel.</span><small>He lived in Brussels.</small></div>
+    <div class="ex"><span class="nl">Wij <span class="v">speelden</span> voetbal.</span><small>We played football.</small></div>
+    <div class="ex"><span class="nl">Ze <span class="v">luisterde</span> naar de radio.</span><small>She listened to the radio.</small></div>
+    <div class="ex"><span class="nl">Hij <span class="v">kookte</span> soep.</span><small>He cooked soup.</small></div>
+    <div class="ex"><span class="nl">Zij <span class="v">lachten</span> hard.</span><small>They laughed loudly.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">wachtte</span> op de bus.</span><small>I waited for the bus.</small></div>
+  </div>
+  <p class="grp">Strong verbs</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik <span class="v">ging</span> naar huis.</span><small>I went home.</small></div>
+    <div class="ex"><span class="nl">Hij <span class="v">at</span> een appel.</span><small>He ate an apple.</small></div>
+    <div class="ex"><span class="nl">Wij <span class="v">kwamen</span> te laat.</span><small>We came too late.</small></div>
+    <div class="ex"><span class="nl">Zij <span class="v">zag</span> de zon.</span><small>She saw the sun.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">schreef</span> een brief.</span><small>I wrote a letter.</small></div>
+    <div class="ex"><span class="nl">Ze <span class="v">sprak</span> zacht.</span><small>She spoke softly.</small></div>
+  </div>
+  <p class="grp">The 7 conversation verbs</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik <span class="v">was</span> moe.</span><small>I was tired.</small></div>
+    <div class="ex"><span class="nl">Wij <span class="v">hadden</span> honger.</span><small>We were hungry.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">kon</span> niet komen.</span><small>I couldn’t come.</small></div>
+    <div class="ex"><span class="nl">Ze <span class="v">wilde</span> naar huis.</span><small>She wanted to go home.</small></div>
+    <div class="ex"><span class="nl">Hij <span class="v">moest</span> werken.</span><small>He had to work.</small></div>
+    <div class="ex"><span class="nl">Vroeger <span class="v">mocht</span> je hier roken.</span><small>You used to be allowed to smoke here.</small></div>
+    <div class="ex"><span class="nl">Dat <span class="v">zou</span> leuk zijn.</span><small>That would be nice.</small></div>
+  </div>
+  <p class="grp">Past habits and background</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Vroeger <span class="v">speelde</span> ik elke dag buiten.</span><small>I used to play outside every day.</small></div>
+    <div class="ex"><span class="nl">Toen ik klein <span class="v">was</span>, <span class="v">woonden</span> we in Rotterdam.</span><small>When I was small, we lived in Rotterdam.</small></div>
+  </div>
+  <p class="grp">A short story</p>
+  <div class="story">
+    <span class="nl">Het <span class="v">was</span> zondag. De zon <span class="v">scheen</span> en ik <span class="v">ging</span> naar het park. Ik <span class="v">zag</span> een hond. Hij <span class="v">had</span> dorst, dus ik <span class="v">gaf</span> hem water.</span>
+    <small>It was Sunday. The sun was shining and I went to the park. I saw a dog. He was thirsty, so I gave him water.</small>
+  </div>
+</section>
+
+<!-- FUTURE -->
+<section id="future" data-t="fut">
+  <h2>Future</h2>
+  <p class="sub">Dutch has no real future tense. Use one of these.</p>
+  <div class="tw"><table>
+    <tr><th>Pattern</th><th>Use</th><th>Example</th></tr>
+    <tr><td><b>gaan</b> + infinitive</td><td class="wrapok">Plans and intentions. Most common.</td><td class="nl">Ik <span class="v">ga</span> morgen <span class="v">koken</span>.</td></tr>
+    <tr><td>Present + time word</td><td class="wrapok">Fixed plans and schedules.</td><td class="nl">Morgen kook ik.</td></tr>
+    <tr><td><b>zullen</b> + infinitive</td><td class="wrapok">Predictions, promises, offers.</td><td class="nl">Ik <span class="v">zal</span> je <span class="v">bellen</span>.</td></tr>
+    <tr><td><b>Zullen we</b> + infinitive?</td><td class="wrapok">“Shall we…?” suggestion.</td><td class="nl">Zullen we koffie drinken?</td></tr>
+  </table></div>
+  <h3>More examples</h3>
+  <p class="grp">gaan + infinitive</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik <span class="v">ga</span> volgende week een huis <span class="v">kopen</span>.</span><small>I’m going to buy a house next week.</small></div>
+    <div class="ex"><span class="nl">Het <span class="v">gaat</span> <span class="v">regenen</span>.</span><small>It’s going to rain.</small></div>
+    <div class="ex"><span class="nl"><span class="v">Ga</span> je morgen <span class="v">werken</span>?</span><small>Are you going to work tomorrow?</small></div>
+    <div class="ex"><span class="nl">Wij <span class="v">gaan</span> binnenkort <span class="v">verhuizen</span>.</span><small>We’re going to move soon.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">ga</span> vanavond <span class="v">koken</span>.</span><small>I’m going to cook tonight.</small></div>
+  </div>
+  <p class="grp">Present + time word</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Morgen <span class="v">komt</span> mijn zus.</span><small>My sister comes tomorrow.</small></div>
+    <div class="ex"><span class="nl">De les <span class="v">begint</span> om negen uur.</span><small>The class starts at nine.</small></div>
+    <div class="ex"><span class="nl">Volgende maand <span class="v">verhuis</span> ik.</span><small>I’m moving next month.</small></div>
+  </div>
+  <p class="grp">zullen</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Dat <span class="v">zal</span> ik <span class="v">doen</span>.</span><small>I’ll do that.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">zal</span> je <span class="v">helpen</span>.</span><small>I’ll help you.</small></div>
+    <div class="ex"><span class="nl"><span class="v">Zullen</span> we naar de bioscoop <span class="v">gaan</span>?</span><small>Shall we go to the cinema?</small></div>
+    <div class="ex"><span class="nl"><span class="v">Zullen</span> we vanavond <span class="v">eten</span>?</span><small>Shall we eat tonight?</small></div>
+  </div>
+
+  <div class="note"><b>Two jobs for gaan:</b> <span class="nl">Ik ga naar huis.</span> (I’m going home) vs <span class="nl">Ik ga werken.</span> (I’m going to work). With another verb it only signals the future.</div>
+</section>
+
+<!-- WORD ORDER -->
+<section id="order" data-t="neutral">
+  <h2>Word order</h2>
+  <p class="sub">Three rules cover every tense.</p>
+  <div class="three" style="--c-now:var(--ink)">
+    <div><h4>1 · Verb is second</h4>Whatever comes first, the conjugated verb follows it.<br><span class="nl">Ik werk vandaag.</span><br><span class="nl">Vandaag werk ik.</span><br><span class="nl">Gisteren heb ik gewerkt.</span></div>
+    <div><h4>2 · Extra verbs go last</h4>Participles and infinitives sit at the end.<br><span class="nl">Ik heb vandaag gewerkt.</span><br><span class="nl">Ik ga vandaag werken.</span><br><span class="nl">Ik moet vandaag werken.</span></div>
+    <div><h4>3 · After omdat, dat, als, toen</h4>The conjugated verb moves to the end.<br><span class="nl">Ik blijf thuis omdat ik moe ben.</span><br><span class="nl">Ik was moe omdat ik gewerkt had.</span></div>
+  </div>
+  <h3>Order inside the sentence: time, manner, place</h3>
+  <p class="nl">Ik ga morgen met de trein naar Utrecht.</p>
+  <p class="hint">morgen (time) · met de trein (manner) · naar Utrecht (place)</p>
+
+  <h3>More examples</h3>
+  <p class="grp">Verb second</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Op zaterdag <span class="v">ga</span> ik naar de markt.</span><small>On Saturday I go to the market.</small></div>
+    <div class="ex"><span class="nl">Morgen <span class="v">moet</span> ik vroeg <span class="v">opstaan</span>.</span><small>Tomorrow I have to get up early.</small></div>
+    <div class="ex"><span class="nl">Vorige week <span class="v">heb</span> ik mijn vriend <span class="v">gezien</span>.</span><small>Last week I saw my friend.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">kan</span> niet <span class="v">komen</span>.</span><small>I can’t come. (niet goes before the last verb)</small></div>
+  </div>
+  <p class="grp">Verb at the end after dat, als, toen, of</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Ik denk dat hij moe <span class="v">is</span>.</span><small>I think he is tired.</small></div>
+    <div class="ex"><span class="nl">Als het <span class="v">regent</span>, <span class="v">blijf</span> ik thuis.</span><small>If it rains, I stay home. (verb right after the comma)</small></div>
+    <div class="ex"><span class="nl">Toen ik de deur <span class="v">opende</span>, <span class="v">was</span> het donker.</span><small>When I opened the door, it was dark.</small></div>
+    <div class="ex"><span class="nl">Ik weet niet of hij <span class="v">komt</span>.</span><small>I don’t know if he’s coming.</small></div>
+  </div>
+  <p class="grp">Questions: yes/no question = verb first</p>
+  <div class="exs">
+    <div class="ex"><span class="nl"><span class="v">Heb</span> je honger?</span><small>Are you hungry?</small></div>
+    <div class="ex"><span class="nl"><span class="v">Ga</span> je morgen mee?</span><small>Are you coming along tomorrow?</small></div>
+  </div>
+  <p class="grp">Questions: question word, then the verb</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Waar <span class="v">woon</span> je?</span><small>Where do you live?</small></div>
+    <div class="ex"><span class="nl">Wanneer <span class="v">ben</span> je <span class="v">gekomen</span>?</span><small>When did you arrive?</small></div>
+    <div class="ex"><span class="nl">Waarom <span class="v">ben</span> je zo laat?</span><small>Why are you so late?</small></div>
+    <div class="ex"><span class="nl">Wat <span class="v">ga</span> je morgen <span class="v">doen</span>?</span><small>What are you going to do tomorrow?</small></div>
+  </div>
+</section>
+
+<!-- TIME -->
+<section id="time" data-t="neutral">
+  <h2>Time words and the clock</h2>
+  <p class="sub">Time words tell you which tense to expect.</p>
+  <div class="tw"><table>
+    <tr><th>Before now</th><th>Now / habits</th><th>Later</th></tr>
+    <tr><td>gisteren (yesterday)</td><td>nu (now)</td><td>morgen (tomorrow)</td></tr>
+    <tr><td>eergisteren (day before yesterday)</td><td>vandaag (today)</td><td>overmorgen (day after tomorrow)</td></tr>
+    <tr><td>vorige week / vorig jaar</td><td>deze week</td><td>volgende week / volgend jaar</td></tr>
+    <tr><td>vanochtend (earlier today)</td><td>op dit moment</td><td>straks (in a bit)</td></tr>
+    <tr><td>net (just now)</td><td>altijd, vaak, soms, nooit</td><td>binnenkort (soon), later</td></tr>
+    <tr><td>vroeger (in the past), toen (then)</td><td>meestal (usually)</td><td>over een week (in a week)</td></tr>
+  </table></div>
+
+  <h3>Telling time</h3>
+  <p><b>Hoe laat is het?</b> <span class="nl">Het is …</span> The trap: <b>half</b> means half an hour <i>before</i> the next hour. <span class="nl">half vier</span> = 3:30.</p>
+  <div class="tw"><table>
+    <tr><th>3:00</th><th>3:05</th><th>3:10</th><th>3:15</th><th>3:20</th><th>3:25</th></tr>
+    <tr><td>drie uur</td><td>vijf over drie</td><td>tien over drie</td><td>kwart over drie</td><td>tien voor half vier</td><td>vijf voor half vier</td></tr>
+    <tr><th>3:30</th><th>3:35</th><th>3:40</th><th>3:45</th><th>3:50</th><th>3:55</th></tr>
+    <tr><td><b>half vier</b></td><td>vijf over half vier</td><td>tien over half vier</td><td>kwart voor vier</td><td>tien voor vier</td><td>vijf voor vier</td></tr>
+  </table></div>
+  <p class="hint">Say “om” for at a time: <i>Ik begin om half negen.</i> Official times use 24 hours: 15:30 = vijftien uur dertig.</p>
+
+  <h3>More examples</h3>
+  <p class="grp">Time words in sentences</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Gisteren <span class="v">ben</span> ik naar de markt <span class="v">gegaan</span>.</span><small>Yesterday I went to the market.</small></div>
+    <div class="ex"><span class="nl">Vorige week <span class="v">heb</span> ik mijn tante <span class="v">gezien</span>.</span><small>Last week I saw my aunt.</small></div>
+    <div class="ex"><span class="nl">Net <span class="v">heb</span> ik <span class="v">gegeten</span>.</span><small>I just ate.</small></div>
+    <div class="ex"><span class="nl">Nu <span class="v">werk</span> ik.</span><small>I’m working now.</small></div>
+    <div class="ex"><span class="nl">Vandaag <span class="v">is</span> het koud.</span><small>Today it’s cold.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">sta</span> meestal om zeven uur <span class="v">op</span>.</span><small>I usually get up at seven.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">drink</span> nooit koffie ’s avonds.</span><small>I never drink coffee in the evening.</small></div>
+    <div class="ex"><span class="nl">Morgen <span class="v">heb</span> ik een afspraak.</span><small>Tomorrow I have an appointment.</small></div>
+    <div class="ex"><span class="nl">Straks <span class="v">ga</span> ik boodschappen <span class="v">doen</span>.</span><small>In a bit I’m going to do groceries.</small></div>
+    <div class="ex"><span class="nl">Volgend jaar <span class="v">ga</span> ik naar Frankrijk.</span><small>Next year I’m going to France.</small></div>
+  </div>
+  <p class="grp">Parts of the day</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">’s ochtends / ’s middags / ’s avonds / ’s nachts</span><small>in the morning / afternoon / evening / at night (habit)</small></div>
+    <div class="ex"><span class="nl">vanochtend / vanmiddag / vanavond</span><small>this morning / this afternoon / tonight</small></div>
+  </div>
+  <p class="grp">Clock times in sentences</p>
+  <div class="exs">
+    <div class="ex"><span class="nl">Het <span class="v">is</span> half negen.</span><small>It’s 8:30.</small></div>
+    <div class="ex"><span class="nl">De trein <span class="v">vertrekt</span> om kwart over tien.</span><small>The train leaves at 10:15.</small></div>
+    <div class="ex"><span class="nl">Ik <span class="v">ben</span> om vijf voor half zes thuis.</span><small>I’m home at 5:25.</small></div>
+    <div class="ex"><span class="nl">De les <span class="v">begint</span> om twee uur en <span class="v">eindigt</span> om kwart voor vier.</span><small>The class starts at two and ends at 3:45.</small></div>
+    <div class="ex"><span class="nl">Hoe laat <span class="v">begint</span> de film? Om half acht.</span><small>What time does the film start? At 7:30.</small></div>
+  </div>
+</section>
+
+<section id="mistakes" data-t="neutral">
+  <h2>Common mistakes</h2>
+  <p class="sub">Each of these is easy to make. Check yourself against them.</p>
+  <div class="tw"><table>
+    <tr><th>Wrong</th><th>Right</th><th>Why</th></tr>
+    <tr><td class="bad">Jij werk</td><td class="good">Jij werkt</td><td class="wrapok">jij, u and hij/zij/het all take -t.</td></tr>
+    <tr><td class="bad">Werkt jij?</td><td class="good">Werk jij?</td><td class="wrapok">After the verb, jij/je drops the -t.</td></tr>
+    <tr><td class="bad">Ik heb naar huis gegaan</td><td class="good">Ik ben naar huis gegaan</td><td class="wrapok">Movement to a place takes zijn.</td></tr>
+    <tr><td class="bad">Ik heb gewerk</td><td class="good">Ik heb gewerkt</td><td class="wrapok">A regular participle ends in -t or -d.</td></tr>
+    <tr><td class="bad">Ik heb gebetaald</td><td class="good">Ik heb betaald</td><td class="wrapok">No ge- after be-, ver-, ont-, her-.</td></tr>
+    <tr><td class="bad">Ik gisteren heb gewerkt</td><td class="good">Gisteren heb ik gewerkt</td><td class="wrapok">The conjugated verb must be second.</td></tr>
+    <tr><td class="bad">Ik ga morgen werk</td><td class="good">Ik ga morgen werken</td><td class="wrapok">After gaan and modals, use the infinitive.</td></tr>
+    <tr><td class="bad">Ik was gewerkt</td><td class="good">Ik heb gewerkt / Ik werkte</td><td class="wrapok">Don’t mix was with a participle.</td></tr>
+  </table></div>
+</section>
+
+<!-- VERB BANK -->
+<section id="verbs" data-t="neutral">
+  <h2>Verb bank</h2>
+  <p class="sub">Strong and irregular verbs you will meet at A2. Switch on test mode to quiz yourself.</p>
+  <div class="bar">
+    <input type="search" id="q" placeholder="Search Dutch or English" aria-label="Search verbs">
+    <button id="testBtn" aria-pressed="false">Test myself</button>
+    <button id="showBtn" type="button">Show all</button>
+  </div>
+  <p class="hint" id="testHint">In test mode, click a blurred cell to reveal it.</p>
+  <div class="tw"><table class="verbs" id="vt">
+    <thead><tr><th>Infinitive</th><th>Imperfectum (sg)</th><th>Imperfectum (pl)</th><th>Participle</th><th>Auxiliary</th><th>Example</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+</section>
+
+<!-- DRILL -->
+<section id="drill" data-t="neutral">
+  <h2>Drill</h2>
+  <p class="sub">Say the forms out loud, then check.</p>
+  <div class="drill">
+    <p class="q" id="dq">–</p>
+    <p class="en" id="den"></p>
+    <div class="ans" id="dans" aria-live="polite"></div>
+    <div class="bar" style="margin:0">
+      <button class="primary" id="dshow">Show answer</button>
+      <button id="dnext">Next verb</button>
+    </div>
+    <p class="meta" id="dmeta"></p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+const VERBS = [
+ ["zijn","to be","was","waren","geweest","zijn"],
+ ["hebben","to have","had","hadden","gehad","hebben"],
+ ["gaan","to go","ging","gingen","gegaan","zijn"],
+ ["komen","to come","kwam","kwamen","gekomen","zijn"],
+ ["doen","to do","deed","deden","gedaan","hebben"],
+ ["zien","to see","zag","zagen","gezien","hebben"],
+ ["eten","to eat","at","aten","gegeten","hebben"],
+ ["drinken","to drink","dronk","dronken","gedronken","hebben"],
+ ["nemen","to take","nam","namen","genomen","hebben"],
+ ["geven","to give","gaf","gaven","gegeven","hebben"],
+ ["krijgen","to get","kreeg","kregen","gekregen","hebben"],
+ ["lezen","to read","las","lazen","gelezen","hebben"],
+ ["schrijven","to write","schreef","schreven","geschreven","hebben"],
+ ["spreken","to speak","sprak","spraken","gesproken","hebben"],
+ ["zeggen","to say","zei","zeiden","gezegd","hebben"],
+ ["vinden","to find / think","vond","vonden","gevonden","hebben"],
+ ["denken","to think","dacht","dachten","gedacht","hebben"],
+ ["weten","to know (fact)","wist","wisten","geweten","hebben"],
+ ["kopen","to buy","kocht","kochten","gekocht","hebben"],
+ ["brengen","to bring","bracht","brachten","gebracht","hebben"],
+ ["zoeken","to look for","zocht","zochten","gezocht","hebben"],
+ ["staan","to stand","stond","stonden","gestaan","hebben"],
+ ["zitten","to sit","zat","zaten","gezeten","hebben"],
+ ["liggen","to lie (be lying)","lag","lagen","gelegen","hebben"],
+ ["lopen","to walk","liep","liepen","gelopen","hebben / zijn"],
+ ["rijden","to ride / drive","reed","reden","gereden","hebben / zijn"],
+ ["zwemmen","to swim","zwom","zwommen","gezwommen","hebben / zijn"],
+ ["blijven","to stay","bleef","bleven","gebleven","zijn"],
+ ["worden","to become","werd","werden","geworden","zijn"],
+ ["beginnen","to begin","begon","begonnen","begonnen","zijn"],
+ ["vertrekken","to leave","vertrok","vertrokken","vertrokken","zijn"],
+ ["vallen","to fall","viel","vielen","gevallen","zijn"],
+ ["slapen","to sleep","sliep","sliepen","geslapen","hebben"],
+ ["helpen","to help","hielp","hielpen","geholpen","hebben"],
+ ["kijken","to look / watch","keek","keken","gekeken","hebben"],
+ ["houden","to hold (houden van = love)","hield","hielden","gehouden","hebben"],
+ ["laten","to let / leave","liet","lieten","gelaten","hebben"],
+ ["heten","to be called","heette","heetten","geheten","hebben"],
+ ["vergeten","to forget","vergat","vergaten","vergeten","hebben / zijn"],
+ ["begrijpen","to understand","begreep","begrepen","begrepen","hebben"],
+ ["kunnen","can","kon","konden","gekund","hebben"],
+ ["willen","to want","wilde","wilden","gewild","hebben"],
+ ["moeten","must","moest","moesten","gemoeten","hebben"],
+ ["mogen","may","mocht","mochten","gemogen","hebben"],
+ ["zullen","shall / will","zou","zouden","–","–"]
+];
+
+const EX = {
+ zijn:["Ik <b>was</b> gisteren ziek.","I was ill yesterday."],
+ hebben:["Wij <b>hadden</b> geen tijd.","We had no time."],
+ gaan:["Ze <b>zijn</b> naar huis <b>gegaan</b>.","They went home."],
+ komen:["Hij <b>kwam</b> te laat.","He arrived late."],
+ doen:["Wat <b>heb</b> je gisteren <b>gedaan</b>?","What did you do yesterday?"],
+ zien:["Ik <b>zag</b> haar in de stad.","I saw her in town."],
+ eten:["We <b>hebben</b> pasta <b>gegeten</b>.","We ate pasta."],
+ drinken:["Hij <b>dronk</b> een glas water.","He drank a glass of water."],
+ nemen:["Ik <b>nam</b> de bus naar school.","I took the bus to school."],
+ geven:["Zij <b>heeft</b> me een boek <b>gegeven</b>.","She gave me a book."],
+ krijgen:["Ik <b>heb</b> een brief <b>gekregen</b>.","I received a letter."],
+ lezen:["Hij <b>las</b> de krant.","He read the newspaper."],
+ schrijven:["Ik <b>heb</b> een e-mail <b>geschreven</b>.","I wrote an email."],
+ spreken:["Zij <b>sprak</b> heel zacht.","She spoke very softly."],
+ zeggen:["Wat <b>zei</b> hij?","What did he say?"],
+ vinden:["Ik <b>vond</b> de film leuk.","I thought the film was fun."],
+ denken:["Ik <b>dacht</b> dat je thuis was.","I thought you were home."],
+ weten:["Ik <b>wist</b> het niet.","I didn’t know."],
+ kopen:["Ze <b>hebben</b> een huis <b>gekocht</b>.","They bought a house."],
+ brengen:["Hij <b>bracht</b> me naar het station.","He took me to the station."],
+ zoeken:["Ik <b>heb</b> mijn sleutels <b>gezocht</b>.","I looked for my keys."],
+ staan:["De fiets <b>stond</b> buiten.","The bike was standing outside."],
+ zitten:["Wij <b>zaten</b> aan tafel.","We sat at the table."],
+ liggen:["Het boek <b>lag</b> op de tafel.","The book was on the table."],
+ lopen:["Ik <b>ben</b> naar school <b>gelopen</b>.","I walked to school."],
+ rijden:["Hij <b>is</b> naar Utrecht <b>gereden</b>.","He drove to Utrecht."],
+ zwemmen:["Wij <b>hebben</b> in de zee <b>gezwommen</b>.","We swam in the sea."],
+ blijven:["Ik <b>ben</b> thuis <b>gebleven</b>.","I stayed home."],
+ worden:["Het <b>werd</b> donker.","It got dark."],
+ beginnen:["De les <b>is</b> om negen uur <b>begonnen</b>.","The class began at nine."],
+ vertrekken:["De trein <b>vertrok</b> om tien uur.","The train left at ten."],
+ vallen:["Hij <b>is</b> van de fiets <b>gevallen</b>.","He fell off his bike."],
+ slapen:["Ik <b>heb</b> goed <b>geslapen</b>.","I slept well."],
+ helpen:["Zij <b>hielp</b> haar moeder.","She helped her mother."],
+ kijken:["We <b>hebben</b> een film <b>gekeken</b>.","We watched a film."],
+ houden:["Ik <b>hield</b> van muziek.","I loved music."],
+ laten:["Ik <b>liet</b> mijn tas thuis.","I left my bag at home."],
+ heten:["Hoe <b>heette</b> hij?","What was he called?"],
+ vergeten:["Ik <b>ben</b> mijn tas <b>vergeten</b>.","I forgot my bag."],
+ begrijpen:["Ik <b>begreep</b> de vraag niet.","I didn’t understand the question."],
+ kunnen:["Ik <b>kon</b> niet slapen.","I couldn’t sleep."],
+ willen:["Ze <b>wilde</b> naar huis.","She wanted to go home."],
+ moeten:["Wij <b>moesten</b> werken.","We had to work."],
+ mogen:["Hij <b>mocht</b> niet naar buiten.","He wasn’t allowed outside."],
+ zullen:["Dat <b>zou</b> leuk zijn.","That would be nice."]
+};
+
+const tbody = document.querySelector("#vt tbody");
+const vt = document.getElementById("vt");
+function render(filter=""){
+  const f = filter.trim().toLowerCase();
+  tbody.innerHTML = "";
+  VERBS.filter(v => !f || v[0].includes(f) || v[1].toLowerCase().includes(f)).forEach(v=>{
+    const tr = document.createElement("tr");
+    const ex = EX[v[0]] || ["",""];
+    tr.innerHTML = `<td><b>${v[0]}</b><br><small>${v[1]}</small></td><td class="a">${v[2]}</td><td class="a">${v[3]}</td><td class="a">${v[4]}</td><td class="a">${v[5]}</td><td class="a wrapok">${ex[0]}<br><small>${ex[1]}</small></td>`;
+    tbody.appendChild(tr);
+  });
+}
+render();
+document.getElementById("q").addEventListener("input", e => render(e.target.value));
+const testBtn = document.getElementById("testBtn");
+testBtn.addEventListener("click", () => {
+  const on = testBtn.getAttribute("aria-pressed") !== "true";
+  testBtn.setAttribute("aria-pressed", on);
+  vt.classList.toggle("test", on);
+  tbody.querySelectorAll("td.a").forEach(td => td.classList.remove("shown"));
+});
+document.getElementById("showBtn").addEventListener("click", () => {
+  tbody.querySelectorAll("td.a").forEach(td => td.classList.add("shown"));
+});
+tbody.addEventListener("click", e => {
+  const td = e.target.closest("td.a");
+  if (td && vt.classList.contains("test")) td.classList.toggle("shown");
+});
+
+/* drill */
+let deck = [], pos = 0, current = null, revealed = false;
+function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+const dq = document.getElementById("dq"), den = document.getElementById("den"),
+      dans = document.getElementById("dans"), dmeta = document.getElementById("dmeta"),
+      dshow = document.getElementById("dshow");
+function nextCard(){
+  if (pos >= deck.length){ deck = shuffle(VERBS); pos = 0; }
+  current = deck[pos++]; revealed = false;
+  dq.textContent = current[0]; den.textContent = current[1];
+  dans.innerHTML = ""; dshow.textContent = "Show answer";
+  dmeta.textContent = `Card ${pos} of ${deck.length}`;
+}
+function showAnswer(){
+  revealed = true;
+  const cells = [["Imperfectum (sg)",current[2]],["Imperfectum (pl)",current[3]],["Participle",current[4]],["Auxiliary",current[5]]];
+  const ex = EX[current[0]];
+  dans.innerHTML = cells.map(c => `<div><small>${c[0]}</small><b>${c[1]}</b></div>`).join("") +
+    (ex ? `<div style="grid-column:1/-1"><small>Example</small>${ex[0]}<br><small>${ex[1]}</small></div>` : "");
+  dshow.textContent = "Hide answer";
+}
+dshow.addEventListener("click", () => { if (revealed){ revealed=false; dans.innerHTML=""; dshow.textContent="Show answer"; } else showAnswer(); });
+document.getElementById("dnext").addEventListener("click", nextCard);
+nextCard();
+
+/* print cheatsheet */
+document.getElementById("printBtn").addEventListener("click", () => { document.body.classList.add("print-cheat"); window.print(); });
+window.addEventListener("afterprint", () => document.body.classList.remove("print-cheat"));
+
+/* nav highlight */
+const links = [...document.querySelectorAll(".nav a")];
+const secs = links.map(a => document.querySelector(a.getAttribute("href")));
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting){
+      links.forEach(l => l.classList.toggle("on", l.getAttribute("href") === "#" + en.target.id));
+    }
+  });
+}, { rootMargin: "-20% 0px -70% 0px" });
+secs.forEach(s => s && io.observe(s));
+</script>
+</body>
+</html>
