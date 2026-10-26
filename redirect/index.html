@@ -1,0 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Opening X</title>
+<style>body{font:16px system-ui;padding:24px}</style>
+<p id="s">Opening X...</p>
+<p><a id="web" href="#">Open in browser instead</a></p>
+<script>
+// ?id=<tweet id>&t=<reply text>&m=<a|b|c> or &k=<reply param name>  picks the app address to try; the web intent is the fallback.
+const q = new URLSearchParams(location.search);
+const id = q.get('id') || '', t = q.get('t') || '', m = q.get('m') || 'a';
+const e = encodeURIComponent;
+const web = `https://x.com/intent/post?in_reply_to=${e(id)}&text=${e(t)}`;
+const k = q.get('k'); // custom name for the reply parameter, to find the one the X app understands
+const app = k ? `twitter://post?${e(k)}=${e(id)}&text=${e(t)}` : {
+  a: `twitter://post?in_reply_to_status_id=${e(id)}&text=${e(t)}`,
+  b: `twitter://post?in_reply_to_status_id=${e(id)}&message=${e(t)}`,
+  c: `twitter://post?message=${e(t)}`,
+}[m] || '';
+document.getElementById('web').href = web;
+const android = /android/i.test(navigator.userAgent);
+const target = android ? `intent://post?${app.split('?')[1]}#Intent;scheme=twitter;package=com.twitter.android;S.browser_fallback_url=${e(web)};end` : app;
+location.href = target;
+// If the app did not take over, fall back to the web intent.
+if (!android) setTimeout(() => { if (!document.hidden) location.href = web; }, 1800);
+</script>
